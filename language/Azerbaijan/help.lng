@@ -1,0 +1,136 @@
+<?php
+
+$help_sections['templates'] = <<<HTML
+<table width="100%">
+    <tr>
+        <td bgcolor="#EFEFEF" height="29" style="padding-left:10px;"><div class="navigation">Şablonlar</div></td>
+    </tr>
+</table>
+<div class="unterline"></div>
+Şablonlar xəbərlərin təsvirinin yüngül dəyişikliyi üçün istifadə olunur. Siz şablonun müxtəlif hissələrini dəyişdirə bilərsiniz, hansı ki, xəbərlərin təsvirinin müxtəlif hissələri üçün istifadə olunurlar. Məsələn, "Qısa məzmun" şablonunun hissəsi istifadə olunur, aktiv xəbərlərin növünü dəyişdirmək üçün, "Tam xəbər", tam xəbərin növünü dəyişdirmək üçün, "Şərh" ki, şərhlərin növünü dəyişdirmək və s.<br><br>
+Şablonun hissələrinin redaktəsi vaxtı Siz HTML-dan istifadə edə bilərsiniz ki, müxtəlif strukturları dəyişdirmək və s. Həmçinin Siz sizin şablonlarınızda bəzi xüsusi işarələri əlavə etməlidir olacaqsınız, yeri müəyyən etmək üçün, harada xəbərin adı göstəriləcək, müəllifin adı, tarix və s. Müəyyən işarə şablonun hər hissəsinə uyğun olur.<br>
+Dəyişənlərin qiymətləri şablonun hissəsinin adında şaqqıldama vaxtı şablonların redaktəsinin səhifəsində baxmaq olar. Məsələn <b>{title}</b> xəbərin adını, <b>{author}</b> müəllifin adını çıxaracaq və s.<br><br>
+Siz bir neçə müxtəlif şablon istifadə edə bilərsiniz.
+HTML;
+
+$help_sections['xfields'] = <<<HTML
+<table width="100%">
+    <tr>
+        <td bgcolor="#EFEFEF" height="29" style="padding-left:10px;"><div class="navigation">Əlavə sahələr</div></td>
+    </tr>
+</table>
+<div class="unterline"></div>
+Əlavə sahələrin qoşulması nizamlamaların menyusu vasitəsilə həyata keçirilir &gt; <a href=?mod=xfields&xfieldsaction=configure>Əlavə sahələr</a>. Bu funksiya nəşr vaxtı xəbərlə birlikdə rahatdır, məsələn, ilkin mənbəyə link.<br>
+Yeni sahəni əlavə etmək olar "<a href=?mod=xfields&xfieldsaction=configure&xfieldssubaction=edit&xfieldsindex=1.5>Yeni sahə</a>" linkini basıb. Açılmış səhifədə Sizə nadir sahənin adını sahənin və sahənin məzmununun təsvirini susmaya görə daxil etmək lazımdır. Həmçinin Sizə seçmək lazımdır ki, Sizin istəyiniz ilə sahələrdən istifadə etmək istəyirsinizmi. Yəni əgər Siz hər hansı xəbər üçün əlavə sahədən Sizə istifadə etməməyi istəyəcəksinizsə sahəni xəbərin və modulun əlavə edilmə/redaktəsi vaxtı boş qoymaq kifayət qoşulmayacaq.<br><br>
+Xəbərlərlə səhifədə sahədən istifadə etmək üçün, Sizə şablona dəyişən [xfvalue_X] əlavə etmək lazımdır, harada X - sahənin adıdır (hansı ki, Siz yeni sahənin əlavə edilməsi vaxtı adı daxil etdiniz). Həmçinin bağlamadan istifadə etmək olar... [xfgiven_X] [/xfgiven_X].<br><br>
+Nümunə iş sahələri:
+<div class="code">
+<b>1)</b>- Ad: stit<br>
+&nbsp;&nbsp;- Təsvir: İnformasiya mənbəyi<br>
+&nbsp;&nbsp;- Susmaya görə məna: M<br>
+&nbsp;&nbsp;- İstəkdən asılı olaraq: bəli<br>
+<b>2)</b>- Ad: source<br>
+&nbsp;&nbsp;- Təsvir: İnformasiyanın mənbəyə linki<br>
+&nbsp;&nbsp;- Susmaya görə məna: http://server.az/<br>
+&nbsp;&nbsp;- İstəkdən asılı olaraq: bəli<br><br>
+[xfgiven_source]Mənbə - &lt;a href=[xfvalue_source] target=_blank&gt;[xfvalue_stit]&lt;/a&gt;.[/xfgiven_source]</div>
+Növbəti HTML-kod işin nəticəsi olacaq:
+<div class="code">Mənbə - &lt;a href=http://server.az/ target=_blank&gt;Я&lt;/a&gt;.</div>
+Yadda saxlayın ki, sahənin adı üçün yalnız latın hərflərindən və rəqəmlərdən istifadə etmək lazımdır.
+HTML;
+
+$help_sections['xprofile'] = <<<HTML
+<table width="100%">
+    <tr>
+        <td bgcolor="#EFEFEF" height="29" style="padding-left:10px;"><div class="navigation">İstifadəçi profilində əlavə sahələr</div></td>
+    </tr>
+</table>
+<div class="unterline"></div>
+Bu funksiya əsas mövcud olanlardan başqa istifadəçilərin profilinə yeni sahələrin əlavə edilməsi üçün nəzərdə tutulmuşdur.<br><br>
+Yeni sahəni əlavə etmək üçün "Yeni sahə" linkinə basmaq lazımdır. Açılmış səhifədə Sizə nadir sahənin adını və sahənin təsvirini daxil etmək lazımdır. Həmçinin Sizə seçmək lazımdır ki, Siz istəyirsinizmi ki, istifadəçi qeydiyyat vaxtı əlavə məlumatı əlavə edə bilsin, bu sahə xüsusilə şəxsidir, həmçinin istifadəçi gələcəkdə bu sahənin məzmununu redaktə edə bilərmi.<br><br>
+Əlavə sahələr şərhlərin və istifadəçinin profilinin baxışı vaxtı əlçatandır, Sizə lazımlı şablonlara [xfvalue_X] teqin əlavə etmək lazımdır, harada X - sahənin adıdır (hansı ki, Siz yeni sahənin əlavə edilməsi vaxtı daxil etdiniz). Həmçinin bağlamadan istifadə etmək olar [xfgiven_X]...[/xfgiven_X].<br><br>
+Nümunə iş sahələri:
+<div class="code">
+&nbsp;&nbsp;- Ad: city<br>
+&nbsp;&nbsp;- Təsvir: Şəhər<br>
+&nbsp;&nbsp;- Sahənin tipi: Bir sətir<br>
+&nbsp;&nbsp;- Qeydiyyat səhifəsinə əlavə etmək: bəli<br>
+&nbsp;&nbsp;- Sahə istifadəçi tərəfindən dəyişdirilmiş ola bilər: bəli<br>
+&nbsp;&nbsp;- Bu sahəni şəxsi etmək: xeyr<br><br>
+comments.tpl və userinfo.tpl şablonuna əlavə et<br>
+[xfgiven_city] Şəhər: [xfvalue_city] [/xfgiven_city]</div>
+Əgər istifadəçi öz profilində məsələn "Xaçmaz" şəhəri əlavə etdisə, onda növbəti HTML-kod işin nəticəsi olacaq:
+<div class="code">Şəhər: Xaçmaz</div>
+Yadda saxlayın ki, sahənin adı üçün yalnız latın hərflərindən və rəqəmlərdən istifadə etmək lazımdır.
+HTML;
+
+$help_sections['banners'] = <<<HTML
+<table width="100%">
+    <tr>
+        <td bgcolor="#EFEFEF" height="29" style="padding-left:10px;"><div class="navigation">Saytda reklamı idarə etmə</div></td>
+    </tr>
+</table>
+<div class="unterline"></div>
+Bu modul sizin reklam materiallarını saytda sürətli və rahat yerləşdirmə və idarə etmə üçün nəzərdə tutulmuşdur. Saytda sizin bannerinizi yerləşdirmək üçün bir dəfə şablona bannerin teqin əlavə etmək kifayətdir, sonra siz şablonlara toxunmayaraq problemlərsiz bu halda adminpaneldə bannerin kodunu dəyişdirə və ya redaktə edə bilərsiniz.<br /><br />
+Öz bannerinin əlavə edilməsindən sonra siz <b>main.tpl</b> və ya <b>fullstory.tpl</b> şablonlarında onun teqi yerləşdirə bilərsiniz. Əgər siz qısa xəbərlərin arasında nümayiş üçün banneri əlavə edirsinizsə, onda şablona teq əlavə etmək lazımsızdır, banner xəbərlərin arasında avtomatik əlavə ediləcək.
+<br />Nümunə iş:
+<div class="code">
+&nbsp;&nbsp;- Ad: header<br>
+&nbsp;&nbsp;- Təsvir: Üst banner<br>
+&nbsp;&nbsp;- Bannerin nümayişini qoş: Bəli<br>
+&nbsp;&nbsp;- Yalnız əsas səhifədə göstər: Xeyr<br>
+&nbsp;&nbsp;- Yerləşmədə bərkit: Xeyr<br>
+&nbsp;&nbsp;- Qısa xəbərlərdə yerləşmə: Xeyr<br><br>
+Bundan sonra siz bannerin çıxardılması üçün sizin şablonunuzda <b>main.tpl</b> və ya <b>fullstory.tpl</b>-ya teqi əlavə edə bilərsiniz: <b>{banner_header}</b><br />
+</div>
+Siz bannerin kodunun əlavə edilməsi vaxtı HTML və JavaScript-dən istifadə edə bilərsiniz.
+HTML;
+
+
+$help_sections['date'] = <<<HTML
+<table width="100%">
+    <tr>
+        <td bgcolor="#EFEFEF" height="29" style="padding-left:10px;"><div class="navigation">date() funksiyası - lokal vaxtın və tarixin formatıdır</div></td>
+    </tr>
+</table>
+<div class="unterline"></div>
+Formatın sətirində növbəti simvollar müəyyən edilir: 
+<UL>
+<LI><b>a</b> - "am" və ya "pm"
+<LI><b>A</b> - "AM" və ya "PM"
+<LI><b>B</b> - Swatch Internet vaxtı
+<LI><b>d</b> - ayın günü (sayı), aparıcı sıfırla 2 rəqəm, əgər lazımdırsa; yəni. "01-dən" "31-ə" qədər
+<LI><b>D</b> - həftənin günü, hərfi, 3 hərf; məsələn, "Fri"
+<LI><b>F</b> - ay, hərfi, long; məsələn, "January"
+<LI><b>g</b> - saat, 12-qarovul aparıcı sıfırlarsız format; yəni "1-dən" "12-ə" qədər
+<LI><b>G</b> - saat, 24-qarovul aparıcı sıfırlarsız format; yəni "0-dan" "23-ə" qədər
+<LI><b>h</b> - saat, 12-qarovul format; yəni "01-dən" "12-ə" qədər
+<LI><b>H</b> - saat, 24-qarovul format; yəni "00-dən" "23-ə" qədər
+<LI><b>i</b> - dəqiqələr; yəni "00-dən" "59-a" qədər
+<LI><b>I</b> (baş i) - "1", əgər Daylight Savings Time, "0" - əks təqdirdə.
+<LI><b>j</b> - gün aparıcı sıfırlarsız ayın (sayı); yəni "1-dən" "31-ə" qədər
+<LI><b>l</b> (alt registrdə 'L') - həftənin günüdür, hərfi, long; məsələn, "Friday"
+<LI><b>L</b> - göstərən boolean uzunmu il; yəni "0" və ya "1"
+<LI><b>m</b> - ay; yəni "01-dən" "12-ə" qədər
+<LI><b>M</b> - ay, hərfi, 3 hərf; məsələn, "Jan"
+<LI><b>n</b> - aparıcı sıfırlarsız ay; yəni "1-dən" "12-ə" qədər
+<LI><b>O</b> - Qrinviç üzrə vaxtla fərq, saatda; məsələn, "+0200"
+<LI><b>r</b> - RFC 822 tarixin formatı; məsələn, "Thu, 21 Dec 2000 16:01:07 +0200" (PHP 4.0.4-də daxil edilmiş)
+<LI><b>s</b> - saniyələr; yəni "00-dan" "59-a" qədər
+<LI><b>S</b> - ayın (sayının) günü üçün sadə ingilis şəkilçisi, 2 simvol; yəni "st", "nd", "rd" və ya "th"
+<LI><b>t</b> - bu ayda günlərin miqdarı; yəni "28-dən" "31-ə" qədər
+<LI><b>T</b> - Timezone/Saatın quraşdırılması bu maşında qayış; məsələn, "EST" və ya
+"MDT"
+<LI><b>U</b> - Unix Epoch (January 1 1970 00:00:00 GMT-dan başlayaraq) dövrünün saniyələri
+<LI><b>w</b> - həftənin günü, say, yəni "0-dan" (Sunday) "6-a" qədər (Saturday)
+<LI><b>W</b> - ISO-8601 ildə həftənin nömrəsi, həftələr bazar ertəsindən/Monday başlanır
+(PHP 4.1.0-da daxil edilmiş)
+<LI><b>Y</b> - il, 4 rəqəm; məsələn, "1999"
+<LI><b>y</b> - il, 2 rəqəm; məsələn, "99"
+<LI><b>z</b> - ilin günü; yəni "0-dan" "365-ə" qədər
+<LI><b>Z</b> - saat qayışının yerdəyişməsi, saniyələrdə ( yəni "-43200-dən" "43200-ə" qədər).
+UTC-dan qərbə saat qayışlarının yerdəyişməsi həmişə mənfi, amma qayışlar üçün
+UTC-dan şərqə - həmişə müsbət.</LI></UL>
+HTML;
+
+?>

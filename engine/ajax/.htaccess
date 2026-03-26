@@ -1,0 +1,19 @@
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.php$">
+        Require all denied
+    </FilesMatch>
+    <Files "controller.php">
+        Require all granted
+    </Files>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    <FilesMatch "\.php$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    <Files "controller.php">
+        Order deny,allow
+        Allow from all
+    </Files>
+</IfModule>
