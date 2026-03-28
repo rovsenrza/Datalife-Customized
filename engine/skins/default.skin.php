@@ -251,6 +251,12 @@ HTML;
 											'mod' => "xfields", 
 											'access' => $user_group[$member_id['user_group']]['admin_xfields'] 
 								),
+								array (
+											'name' => 'Filters',
+											'url' => "?mod=filters",
+											'mod' => "filters",
+											'access' => "admin"
+								),
 
 								array (
 											'name' => $lang['opt_question'], 

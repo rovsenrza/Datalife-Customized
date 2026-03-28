@@ -239,6 +239,35 @@ class dle_template {
 
 		}
 
+		// Automatic template language placeholders: {t_some_key} and {lang_some_key}
+		$lang_replace_callback = function ($matches) use ($lang) {
+			$key = strtolower(trim((string)$matches[1]));
+			if (!$key) return '';
+
+			$candidates = array(
+				'tpl_' . $key,
+				'lang_' . $key,
+				$key,
+				't_' . $key,
+			);
+
+			foreach ($candidates as $candidate) {
+				if (isset($lang[$candidate])) {
+					return $lang[$candidate];
+				}
+			}
+
+			return '';
+		};
+
+		if (stripos($content, "{t_") !== false) {
+			$content = preg_replace_callback("#\\{t_([a-z0-9_\\-]+)\\}#i", $lang_replace_callback, $content);
+		}
+
+		if (stripos($content, "{lang_") !== false) {
+			$content = preg_replace_callback("#\\{lang_([a-z0-9_\\-]+)\\}#i", $lang_replace_callback, $content);
+		}
+
 		if (stripos($content, "country=") !== false OR stripos($content, "{country}") !== false) {
 			
 			$content = str_ireplace('{country}', DLECountry::Get(), $content);

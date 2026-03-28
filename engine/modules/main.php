@@ -520,6 +520,12 @@ if (stripos ( $tpl->copy_template, "[not-category=" ) !== false) {
 	$tpl->copy_template = preg_replace_callback ( "#\\[(not-category)=(.+?)\\](.*?)\\[/not-category\\]#is", "check_category", $tpl->copy_template );
 }
 
+if( !isset($dle_category_filters_html) ) {
+	$dle_category_filters_html = '';
+}
+
+$tpl->set( '{filter}', $dle_category_filters_html );
+
 if (stripos ( $tpl->copy_template, "[static=" ) !== false) {
 	$tpl->copy_template = preg_replace_callback ( "#\\[(static)=(.+?)\\](.*?)\\[/static\\]#is", "check_static", $tpl->copy_template );
 }
@@ -788,6 +794,76 @@ HTML;
 
 } else $onload_scripts="";
 
+if( !empty($dle_category_filter_enabled) ) {
+	$ajax .= <<<HTML
+
+jQuery(function($){
+	var timer = null;
+	var \$form = $('form[data-dle-filter-form="1"]');
+
+	if(!\$form.length) return;
+
+	function runAjaxFilter(){
+		var form = \$form.get(0);
+		var params = new URLSearchParams();
+		var data = new FormData(form);
+
+		data.forEach(function(value, key){
+			if(value !== '' && value !== null) params.append(key, value);
+		});
+
+		params.delete('cstart');
+
+		var url = form.getAttribute('action') || window.location.pathname;
+		if(params.toString()) {
+			url += (url.indexOf('?') === -1 ? '?' : '&') + params.toString();
+		}
+
+		fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+			.then(function(resp){ return resp.text(); })
+			.then(function(html){
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(html, 'text/html');
+				var nextContent = doc.querySelector('#dle-filter-content');
+				var nextNavigation = doc.querySelector('#dle-filter-navigation');
+				var currentContent = document.querySelector('#dle-filter-content');
+				var currentNavigation = document.querySelector('#dle-filter-navigation');
+
+				if(nextContent && currentContent) currentContent.replaceWith(nextContent);
+				if(nextNavigation && currentNavigation) currentNavigation.replaceWith(nextNavigation);
+
+				window.history.replaceState({}, '', url);
+			})
+			.catch(function(){});
+	}
+
+	function scheduleFilter(){
+		clearTimeout(timer);
+		timer = setTimeout(runAjaxFilter, 250);
+	}
+
+	\$form.on('input', 'input[type="text"], input[type="number"]', scheduleFilter);
+	\$form.on('change', 'input, select', scheduleFilter);
+	\$form.on('submit', function(e){
+		e.preventDefault();
+		runAjaxFilter();
+	});
+	\$form.on('click', '[data-dle-filter-reset="1"]', function(e){
+		e.preventDefault();
+		formReset();
+	});
+
+	function formReset(){
+		var form = \$form.get(0);
+		if(!form) return;
+		form.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el){ el.value = ''; });
+		form.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function(el){ el.checked = false; });
+		runAjaxFilter();
+	}
+});
+HTML;
+}
+
 $ajax .= <<<HTML
 
 //-->
@@ -806,8 +882,11 @@ if( ($tpl->result['content'] AND isset($tpl->result['navigation']) AND $tpl->res
 		$tpl->copy_template = str_replace ( '{newsnavigation}', '', $tpl->copy_template );
 			
 		if( $tpl->result['navigation'] AND stripos ( $tpl->copy_template, "{content}" ) !== false ) {
-			
-			$tpl->set( '{navigation}', $tpl->result['navigation'] );
+			if( !empty($dle_category_filter_enabled) AND $do == 'cat' ) {
+				$tpl->set( '{navigation}', '<div id="dle-filter-navigation">'.$tpl->result['navigation'].'</div>' );
+			} else {
+				$tpl->set( '{navigation}', $tpl->result['navigation'] );
+			}
 			
 		} else {
 			
@@ -817,7 +896,11 @@ if( ($tpl->result['content'] AND isset($tpl->result['navigation']) AND $tpl->res
 
 	} else {
 		
-		$tpl->result['content'] = str_replace ( '{newsnavigation}', $tpl->result['navigation'], $tpl->result['content'] );
+		if( !empty($dle_category_filter_enabled) AND $do == 'cat' ) {
+			$tpl->result['content'] = str_replace ( '{newsnavigation}', '<div id="dle-filter-navigation">'.$tpl->result['navigation'].'</div>', $tpl->result['content'] );
+		} else {
+			$tpl->result['content'] = str_replace ( '{newsnavigation}', $tpl->result['navigation'], $tpl->result['content'] );
+		}
 		$tpl->copy_template = str_replace ( '{newsnavigation}', $custom_navigation, $tpl->copy_template );
 
 	}
@@ -842,7 +925,11 @@ if (stripos ( $tpl->copy_template, "{jsfiles}" ) !== false) {
 $tpl->set ( '{AJAX}', $ajax );
 $tpl->set ( '{info}',  $tpl->result['info'] );
 
-$tpl->set ( '{content}', $tpl->result['content'] );
+if( !empty($dle_category_filter_enabled) AND $do == 'cat' ) {
+	$tpl->set ( '{content}', '<div id="dle-filter-content">'.$tpl->result['content'].'</div>' );
+} else {
+	$tpl->set ( '{content}', $tpl->result['content'] );
+}
 
 $tpl->compile ( 'main' );
 
@@ -889,6 +976,17 @@ if( stripos ( $tpl->result['main'], '[custom' ) !== false OR stripos ( $tpl->res
 if ($config['allow_links'] and isset($replace_links['all']) ) $tpl->result['main'] = replace_links ( $tpl->result['main'], $replace_links['all'] );
 
 $tpl->result['main'] = str_ireplace( '{THEME}', $config['http_home_url'] . 'templates/' . $config['skin'], $tpl->result['main'] );
+
+if( !empty($config['http_home_url']) ) {
+	$home_url = rtrim($config['http_home_url'], '/') . '/';
+
+	// Keep active language context for internal root-relative links like "/", "/contact/", "/search/".
+	// This prevents language reset to main language when navigating via static template links.
+	$tpl->result['main'] = preg_replace('#\bhref="/(?!/)#i', 'href="' . $home_url, $tpl->result['main']);
+	$tpl->result['main'] = preg_replace("#\bhref='/(?!/)#i", "href='" . $home_url, $tpl->result['main']);
+	$tpl->result['main'] = preg_replace('#\baction="/(?!/)#i', 'action="' . $home_url, $tpl->result['main']);
+	$tpl->result['main'] = preg_replace("#\baction='/(?!/)#i", "action='" . $home_url, $tpl->result['main']);
+}
 
 if ($replace_url) $tpl->result['main'] = str_replace ( $replace_url[0]."/", $replace_url[1]."/", $tpl->result['main'] );
 

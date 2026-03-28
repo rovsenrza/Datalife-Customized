@@ -852,7 +852,7 @@ function CategoryNewsSelection($selectedId = null, $deprecated = null, $nocat = 
 }
 
 function get_ID($category) {
-	global $cat_info;
+	global $cat_info, $db;
 
 	$paths = buildCategoryPaths($cat_info);
 
@@ -871,6 +871,95 @@ function get_ID($category) {
 
 	foreach ( $cat_info as $cats ) {
 		if( $cats['alt_name'] == $category ) return $cats['id'];
+	}
+
+	$path_parts = array_filter(array_map('trim', explode('/', (string)$category)));
+	$path_parts = array_values($path_parts);
+
+	if (!count($path_parts)) return false;
+
+	// Multilingual fallback: resolve category paths/slugs using all translated alt_name values.
+	// This allows language switching inside category URLs with different slugs per language.
+	if (function_exists('dle_ml_table_exists') AND dle_ml_table_exists('category_i18n')) {
+		static $ml_alt_index = null;
+		static $ml_cat_alts = null;
+
+		if ($ml_alt_index === null OR $ml_cat_alts === null) {
+			$ml_alt_index = array();
+			$ml_cat_alts = array();
+
+			foreach ($cat_info as $cid => $cat_data) {
+				$cid = intval($cid);
+				if ($cid < 1) continue;
+
+				$alt_value = isset($cat_data['alt_name']) ? trim((string)$cat_data['alt_name']) : '';
+				if ($alt_value === '') continue;
+
+				$key = dle_strtolower($alt_value);
+				if (!isset($ml_cat_alts[$cid])) $ml_cat_alts[$cid] = array();
+				$ml_cat_alts[$cid][$key] = 1;
+
+				if (!isset($ml_alt_index[$key])) $ml_alt_index[$key] = array();
+				$ml_alt_index[$key][$cid] = 1;
+			}
+
+			$result = $db->query("SELECT category_id, alt_name FROM " . PREFIX . "_category_i18n WHERE alt_name <> ''");
+
+			if ($result) {
+				while ($row = $db->get_row($result)) {
+					$cid = intval($row['category_id']);
+					if ($cid < 1 || !isset($cat_info[$cid])) continue;
+
+					$alt_value = trim((string)$row['alt_name']);
+					if ($alt_value === '') continue;
+
+					$key = dle_strtolower($alt_value);
+					if (!isset($ml_cat_alts[$cid])) $ml_cat_alts[$cid] = array();
+					$ml_cat_alts[$cid][$key] = 1;
+
+					if (!isset($ml_alt_index[$key])) $ml_alt_index[$key] = array();
+					$ml_alt_index[$key][$cid] = 1;
+				}
+
+				$db->free($result);
+			}
+		}
+
+		$normalized_parts = array();
+		foreach ($path_parts as $part) {
+			$normalized_parts[] = dle_strtolower($part);
+		}
+
+		$leaf = $normalized_parts[count($normalized_parts) - 1];
+
+		if (isset($ml_alt_index[$leaf]) AND is_array($ml_alt_index[$leaf]) AND count($ml_alt_index[$leaf])) {
+			foreach ($ml_alt_index[$leaf] as $candidate_id => $dummy) {
+				$candidate_id = intval($candidate_id);
+				if ($candidate_id < 1 || !isset($cat_info[$candidate_id])) continue;
+
+				$current_id = $candidate_id;
+				$ok = true;
+
+				for ($i = count($normalized_parts) - 2; $i >= 0; $i--) {
+					$parent_id = isset($cat_info[$current_id]['parentid']) ? intval($cat_info[$current_id]['parentid']) : 0;
+					if ($parent_id < 1 || !isset($ml_cat_alts[$parent_id][$normalized_parts[$i]])) {
+						$ok = false;
+						break;
+					}
+
+					$current_id = $parent_id;
+				}
+
+				if ($ok) return $candidate_id;
+			}
+
+			foreach ($ml_alt_index[$leaf] as $candidate_id => $dummy) {
+				$candidate_id = intval($candidate_id);
+				if ($candidate_id > 0 && isset($cat_info[$candidate_id])) {
+					return $candidate_id;
+				}
+			}
+		}
 	}
 
 	return false;
@@ -2739,6 +2828,386 @@ function xfieldsdataload($id) {
 	}
 	
 	return $data;
+}
+
+function dle_load_category_filters_config() {
+
+	static $filters = null;
+
+	if ($filters !== null) {
+		return $filters;
+	}
+
+	$path = ENGINE_DIR . '/data/category_filters.json';
+
+	if (!file_exists($path)) {
+		$filters = array();
+		return $filters;
+	}
+
+	$json = @file_get_contents($path);
+
+	if (!$json) {
+		$filters = array();
+		return $filters;
+	}
+
+	$data = json_decode($json, true);
+
+	if (!is_array($data)) {
+		$filters = array();
+		return $filters;
+	}
+
+	$filters = $data;
+	return $filters;
+}
+
+function dle_get_category_filters($category_id) {
+
+	global $config;
+
+	$category_id = intval($category_id);
+	$result = array();
+	$types = array('range', 'radio', 'checkbox', 'input');
+	$filters_config = dle_load_category_filters_config();
+	$active_folder = isset($GLOBALS['dle_active_language']) ? $GLOBALS['dle_active_language'] : (isset($config['active_language']) ? $config['active_language'] : '');
+	$main_folder = function_exists('dle_ml_main_folder') ? dle_ml_main_folder($config) : '';
+
+	foreach ($filters_config as $filter) {
+
+		if (!is_array($filter)) {
+			continue;
+		}
+
+		$enabled = !empty($filter['enabled']);
+		$xfield = isset($filter['xfield']) ? totranslit(trim($filter['xfield']), false, false) : '';
+		$type = isset($filter['type']) ? trim($filter['type']) : '';
+		$id = isset($filter['id']) ? trim($filter['id']) : '';
+
+		if (!$enabled OR !$xfield OR !in_array($type, $types) OR !$id) {
+			continue;
+		}
+
+		$cats = isset($filter['categories']) && is_array($filter['categories']) ? $filter['categories'] : array();
+		$cats = array_map('intval', $cats);
+
+		if (count($cats) AND !in_array($category_id, $cats)) {
+			continue;
+		}
+
+		$title = isset($filter['title']) && $filter['title'] ? trim($filter['title']) : $xfield;
+
+		if (isset($filter['title_i18n']) && is_array($filter['title_i18n'])) {
+			if ($active_folder && isset($filter['title_i18n'][$active_folder]) && trim((string)$filter['title_i18n'][$active_folder]) !== '') {
+				$title = trim((string)$filter['title_i18n'][$active_folder]);
+			} elseif ($main_folder && isset($filter['title_i18n'][$main_folder]) && trim((string)$filter['title_i18n'][$main_folder]) !== '') {
+				$title = trim((string)$filter['title_i18n'][$main_folder]);
+			}
+		}
+
+		$filter['title'] = $title;
+		$filter['xfield'] = $xfield;
+		$filter['id'] = preg_replace("/[^a-z0-9\_\-]+/i", "", $id);
+		$result[] = $filter;
+	}
+
+	return $result;
+}
+
+function dle_filter_parse_number($value) {
+
+	if (!is_string($value) AND !is_numeric($value)) {
+		return null;
+	}
+
+	$value = trim((string)$value);
+	$value = str_replace(array(" ", ","), array("", "."), $value);
+	$value = preg_replace("/[^0-9\.\-]/", "", $value);
+
+	if ($value === '' OR !is_numeric($value)) {
+		return null;
+	}
+
+	return (float)$value;
+}
+
+function dle_filter_split_values($value) {
+
+	if (!is_string($value) OR $value === '') {
+		return array();
+	}
+
+	$value = str_replace(array('&amp;#x2C;', '&#x2C;'), ',', $value);
+	$parts = explode(',', $value);
+	$result = array();
+
+	foreach ($parts as $part) {
+		$part = trim((string)$part);
+		if ($part !== '') {
+			$result[$part] = true;
+		}
+	}
+
+	return array_keys($result);
+}
+
+function dle_prepare_category_filters($filters, $rows) {
+
+	$prepared = array();
+	$rows_data = array();
+	$selected = array();
+	$request_data = isset($_REQUEST) && is_array($_REQUEST) ? $_REQUEST : array();
+
+	foreach ($filters as $filter) {
+		$prepared[$filter['id']] = array(
+			'id' => $filter['id'],
+			'title' => $filter['title'],
+			'type' => $filter['type'],
+			'xfield' => $filter['xfield'],
+			'items' => array(),
+			'min' => null,
+			'max' => null,
+		);
+
+		$key = 'ff_' . $filter['id'];
+
+		if ($filter['type'] === 'range') {
+			$req_min = isset($request_data[$key . '_min']) ? $request_data[$key . '_min'] : null;
+			$req_max = isset($request_data[$key . '_max']) ? $request_data[$key . '_max'] : null;
+			$selected[$filter['id']] = array(
+				'min' => $req_min !== null ? dle_filter_parse_number($req_min) : null,
+				'max' => $req_max !== null ? dle_filter_parse_number($req_max) : null
+			);
+		} elseif ($filter['type'] === 'checkbox') {
+			$values = isset($request_data[$key]) ? $request_data[$key] : array();
+			if (!is_array($values)) {
+				$values = array($values);
+			}
+
+			$tmp = array();
+			foreach ($values as $value) {
+				$value = trim((string)$value);
+				if ($value !== '') {
+					$tmp[$value] = true;
+				}
+			}
+			$selected[$filter['id']] = array_keys($tmp);
+		} else {
+			$selected[$filter['id']] = isset($request_data[$key]) ? trim((string)$request_data[$key]) : '';
+		}
+	}
+
+	foreach ($rows as $row) {
+		$id = intval($row['id']);
+		$xf = xfieldsdataload((string)$row['xfields']);
+		$rows_data[$id] = array();
+
+		foreach ($filters as $filter) {
+			$fid = $filter['id'];
+			$xvalue = isset($xf[$filter['xfield']]) ? trim((string)$xf[$filter['xfield']]) : '';
+
+			if ($filter['type'] === 'range') {
+				$num = dle_filter_parse_number($xvalue);
+				$rows_data[$id][$fid] = $num;
+
+				if ($num !== null) {
+					if ($prepared[$fid]['min'] === null OR $num < $prepared[$fid]['min']) {
+						$prepared[$fid]['min'] = $num;
+					}
+					if ($prepared[$fid]['max'] === null OR $num > $prepared[$fid]['max']) {
+						$prepared[$fid]['max'] = $num;
+					}
+				}
+			} elseif ($filter['type'] === 'radio' OR $filter['type'] === 'checkbox') {
+				$values = dle_filter_split_values($xvalue);
+				$rows_data[$id][$fid] = $values;
+
+				foreach ($values as $value) {
+					if (!isset($prepared[$fid]['items'][$value])) {
+						$prepared[$fid]['items'][$value] = 0;
+					}
+					$prepared[$fid]['items'][$value]++;
+				}
+			} else {
+				$rows_data[$id][$fid] = $xvalue;
+			}
+		}
+	}
+
+	foreach ($prepared as $fid => $data) {
+		if ($data['type'] === 'radio' OR $data['type'] === 'checkbox') {
+			ksort($prepared[$fid]['items'], SORT_NATURAL | SORT_FLAG_CASE);
+		}
+	}
+
+	$all_ids = array();
+	$matched_ids = array();
+	$has_selected = false;
+
+	foreach ($rows as $row) {
+		$id = intval($row['id']);
+		$all_ids[] = $id;
+		$pass = true;
+
+		foreach ($filters as $filter) {
+			$fid = $filter['id'];
+			$current = isset($rows_data[$id][$fid]) ? $rows_data[$id][$fid] : null;
+			$sel = isset($selected[$fid]) ? $selected[$fid] : '';
+
+			if ($filter['type'] === 'range') {
+				$min = isset($sel['min']) ? $sel['min'] : null;
+				$max = isset($sel['max']) ? $sel['max'] : null;
+
+				if ($min !== null OR $max !== null) {
+					$has_selected = true;
+					if ($current === null) {
+						$pass = false;
+						break;
+					}
+					if ($min !== null AND $current < $min) {
+						$pass = false;
+						break;
+					}
+					if ($max !== null AND $current > $max) {
+						$pass = false;
+						break;
+					}
+				}
+			} elseif ($filter['type'] === 'radio') {
+				if ($sel !== '') {
+					$has_selected = true;
+					if (!is_array($current) OR !in_array($sel, $current)) {
+						$pass = false;
+						break;
+					}
+				}
+			} elseif ($filter['type'] === 'checkbox') {
+				if (is_array($sel) AND count($sel)) {
+					$has_selected = true;
+					$intersect = is_array($current) ? array_intersect($sel, $current) : array();
+					if (!count($intersect)) {
+						$pass = false;
+						break;
+					}
+				}
+			} else {
+				if ($sel !== '') {
+					$has_selected = true;
+					if (stripos((string)$current, $sel) === false) {
+						$pass = false;
+						break;
+					}
+				}
+			}
+		}
+
+		if ($pass) {
+			$matched_ids[] = $id;
+		}
+	}
+
+	return array(
+		'filters' => $prepared,
+		'selected' => $selected,
+		'all_ids' => $all_ids,
+		'matched_ids' => $matched_ids,
+		'has_selected' => $has_selected
+	);
+}
+
+function dle_render_category_filters($context, $form_action) {
+
+	global $lang;
+
+	$filters = isset($context['filters']) ? $context['filters'] : array();
+	$selected = isset($context['selected']) ? $context['selected'] : array();
+
+	if (!count($filters)) {
+		return '';
+	}
+
+	$items_html = '';
+
+	foreach ($filters as $fid => $filter) {
+
+		$title = htmlspecialchars($filter['title'], ENT_QUOTES, 'UTF-8');
+		$type = $filter['type'];
+		$key = 'ff_' . $fid;
+		$control = '';
+
+		if ($type === 'range') {
+			$min = isset($filter['min']) && $filter['min'] !== null ? $filter['min'] : 0;
+			$max = isset($filter['max']) && $filter['max'] !== null ? $filter['max'] : 0;
+
+			$current_min = isset($selected[$fid]['min']) && $selected[$fid]['min'] !== null ? $selected[$fid]['min'] : $min;
+			$current_max = isset($selected[$fid]['max']) && $selected[$fid]['max'] !== null ? $selected[$fid]['max'] : $max;
+
+			$control = "<div class=\"dle-filter-range\"><input type=\"number\" name=\"{$key}_min\" value=\"{$current_min}\" min=\"{$min}\" max=\"{$max}\" step=\"any\" placeholder=\"Min\"><input type=\"number\" name=\"{$key}_max\" value=\"{$current_max}\" min=\"{$min}\" max=\"{$max}\" step=\"any\" placeholder=\"Max\"></div>";
+		} elseif ($type === 'radio') {
+			foreach ($filter['items'] as $value => $count) {
+				$value_esc = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+				$checked = (isset($selected[$fid]) && (string)$selected[$fid] === (string)$value) ? ' checked' : '';
+				$control .= "<label><input type=\"radio\" name=\"{$key}\" value=\"{$value_esc}\"{$checked}> <span>{$value_esc} ({$count})</span></label>";
+			}
+		} elseif ($type === 'checkbox') {
+			$current_values = isset($selected[$fid]) && is_array($selected[$fid]) ? $selected[$fid] : array();
+			foreach ($filter['items'] as $value => $count) {
+				$value_esc = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+				$checked = in_array($value, $current_values) ? ' checked' : '';
+				$control .= "<label><input type=\"checkbox\" name=\"{$key}[]\" value=\"{$value_esc}\"{$checked}> <span>{$value_esc} ({$count})</span></label>";
+			}
+		} else {
+			$value = isset($selected[$fid]) ? htmlspecialchars((string)$selected[$fid], ENT_QUOTES, 'UTF-8') : '';
+			$control = "<input type=\"text\" name=\"{$key}\" value=\"{$value}\" placeholder=\"{$title}\">";
+		}
+
+		$items_html .= "<div class=\"dle-filter-item dle-filter-type-{$type}\"><div class=\"dle-filter-title\">{$title}</div><div class=\"dle-filter-control\">{$control}</div></div>";
+	}
+
+	$hidden = '';
+
+	foreach ($_GET as $name => $value) {
+		if (strpos((string)$name, 'ff_') === 0 OR $name === 'cstart') {
+			continue;
+		}
+
+		if (is_array($value)) {
+			foreach ($value as $item) {
+				$item = htmlspecialchars((string)$item, ENT_QUOTES, 'UTF-8');
+				$name_esc = htmlspecialchars((string)$name, ENT_QUOTES, 'UTF-8');
+				$hidden .= "<input type=\"hidden\" name=\"{$name_esc}[]\" value=\"{$item}\">";
+			}
+		} else {
+			$name_esc = htmlspecialchars((string)$name, ENT_QUOTES, 'UTF-8');
+			$value_esc = htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+			$hidden .= "<input type=\"hidden\" name=\"{$name_esc}\" value=\"{$value_esc}\">";
+		}
+	}
+
+	$template_path = ROOT_DIR . '/templates/' . $GLOBALS['config']['skin'] . '/filter.tpl';
+	$form_action = htmlspecialchars($form_action, ENT_QUOTES, 'UTF-8');
+	$reset = isset($lang['b_reset']) ? $lang['b_reset'] : 'Reset';
+
+	$default_tpl = <<<HTML
+<form class="dle-filters" data-dle-filter-form="1" action="{form_action}" method="get">
+{hidden_fields}
+<div class="dle-filters-items">{items}</div>
+<div class="dle-filters-actions"><button type="button" data-dle-filter-reset="1">{$reset}</button></div>
+</form>
+HTML;
+
+	if (file_exists($template_path)) {
+		$template = file_get_contents($template_path);
+	} else {
+		$template = $default_tpl;
+	}
+
+	$template = str_replace('{form_action}', $form_action, $template);
+	$template = str_replace('{hidden_fields}', $hidden, $template);
+	$template = str_replace('{items}', $items_html, $template);
+
+	return $template;
 }
 
 function clear_rss_content ( $content, $rssmode ) {

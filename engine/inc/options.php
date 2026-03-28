@@ -72,6 +72,13 @@ if( $action == "options" or $action == '' ) {
 											'image' => "xfset.png", 
 											'access' => $user_group[$member_id['user_group']]['admin_xfields'] 
 								),
+								array (
+											'name' => 'Filters',
+											'url' => "?mod=filters",
+											'descr' => 'Category xfields filters',
+											'image' => "fset.png",
+											'access' => "admin"
+								),
 
 								array (
 											'name' => $lang['opt_vconf'], 

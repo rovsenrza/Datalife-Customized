@@ -113,8 +113,22 @@ function dle_ml_main_folder($config_data = array()) {
         return $config_data['main_language'];
     }
 
+    if (isset($config_data['main_language']) && $config_data['main_language']) {
+        $from_code = dle_ml_folder_from_code($config_data['main_language']);
+        if ($from_code && isset($languages[$from_code])) {
+            return $from_code;
+        }
+    }
+
     if (isset($config_data['langs']) && $config_data['langs'] && isset($languages[$config_data['langs']])) {
         return $config_data['langs'];
+    }
+
+    if (isset($config_data['langs']) && $config_data['langs']) {
+        $from_code = dle_ml_folder_from_code($config_data['langs']);
+        if ($from_code && isset($languages[$from_code])) {
+            return $from_code;
+        }
     }
 
     foreach ($languages as $folder => $meta) {
@@ -155,6 +169,24 @@ function dle_ml_active_folder(&$config_data, $allow_cookie = true) {
     $main_folder = dle_ml_main_folder($config_data);
 
     $active_folder = '';
+    $path_lang_folder = '';
+
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? (string)$_SERVER['REQUEST_URI'] : '/';
+    $request_path = parse_url($request_uri, PHP_URL_PATH);
+    if (!$request_path) $request_path = '/';
+
+    $request_path = preg_replace('#/+#', '/', $request_path);
+    $first_segment = trim((string)strtok(ltrim($request_path, '/'), '/'));
+
+    if ($first_segment !== '') {
+        foreach ($languages as $folder_key => $meta) {
+            $lang_code = isset($meta['code']) ? strtolower(trim((string)$meta['code'])) : '';
+            if ($lang_code && $lang_code === strtolower($first_segment)) {
+                $path_lang_folder = $folder_key;
+                break;
+            }
+        }
+    }
 
     if (isset($_GET['site_lang']) && $_GET['site_lang'] !== '') {
         $request_lang = totranslit($_GET['site_lang'], false, false);
@@ -164,6 +196,16 @@ function dle_ml_active_folder(&$config_data, $allow_cookie = true) {
         } else {
             $active_folder = dle_ml_folder_from_code($request_lang);
         }
+    }
+
+    if (!$active_folder && $path_lang_folder && isset($languages[$path_lang_folder])) {
+        $active_folder = $path_lang_folder;
+    }
+
+    if (!$active_folder && dle_ml_feature_enabled($config_data)) {
+        // In prefix mode, URLs without a language segment must always resolve to main language.
+        // This guarantees reliable return to main language via root URL (/).
+        $active_folder = $main_folder;
     }
 
     if (!$active_folder && $allow_cookie && isset($_COOKIE['site_language']) && $_COOKIE['site_language']) {
@@ -259,10 +301,10 @@ function dle_ml_should_prefix_code($code, $config_data = array()) {
 
     if (!dle_ml_prefix_mode($config_data)) return false;
 
-    $active_code = dle_ml_current_lang_code($config_data);
-    if (!$active_code) $active_code = dle_ml_main_lang_code($config_data);
+    $main_code = dle_ml_main_lang_code($config_data);
+    if (!$main_code) return false;
 
-    return ($code !== strtolower($active_code));
+    return ($code !== strtolower($main_code));
 }
 
 function dle_ml_language_base_url($lang_code, $config_data = array()) {
@@ -374,10 +416,29 @@ function dle_ml_front_switcher_markup() {
 
     $active_code = htmlspecialchars(strtoupper($active_code), ENT_QUOTES, 'UTF-8');
 
-    return '<div class="ml-switcher"><button type="button" class="ml-switcher__btn">' . $active_icon . '<span>' . $active_code . '</span></button><ul class="ml-switcher__menu">' . implode('', $items) . '</ul></div>';
+    $items_html = implode('', $items);
+    $fallback_html = '<div class="ml-switcher"><button type="button" class="ml-switcher__btn">' . $active_icon . '<span>' . $active_code . '</span></button><ul class="ml-switcher__menu">' . $items_html . '</ul></div>';
+
+    $skin = isset($config['skin']) ? trim((string)$config['skin']) : '';
+    if (!$skin) return $fallback_html;
+
+    $template_file = ROOT_DIR . '/templates/' . $skin . '/multilanguage.tpl';
+
+    if (!file_exists($template_file)) return $fallback_html;
+
+    $template = @file_get_contents($template_file);
+    if ($template === false || $template === '') return $fallback_html;
+
+    $template = str_replace('{active_icon}', $active_icon, $template);
+    $template = str_replace('{active_code}', $active_code, $template);
+    $template = str_replace('{items}', $items_html, $template);
+
+    return $template;
 }
 
 function dle_ml_load_website_lang($folder) {
+    global $lang;
+
     $folder = totranslit($folder, false, false);
 
     if (!$folder) return;
@@ -387,7 +448,10 @@ function dle_ml_load_website_lang($folder) {
     }
 
     if (file_exists(DLEPlugins::Check(ROOT_DIR . '/language/' . $folder . '/template_language.lng'))) {
+        $website_lang = (is_array($lang) ? $lang : array());
         include_once (DLEPlugins::Check(ROOT_DIR . '/language/' . $folder . '/template_language.lng'));
+        $template_lang = (is_array($lang) ? $lang : array());
+        $lang = array_merge($website_lang, $template_lang);
     }
 }
 
@@ -418,6 +482,44 @@ function dle_ml_table_exists($table_suffix) {
     return $cache[$table_suffix];
 }
 
+function dle_ml_table_column_exists($table_suffix, $column_name) {
+    global $db;
+
+    if (!isset($GLOBALS['dle_ml_table_column_cache']) || !is_array($GLOBALS['dle_ml_table_column_cache'])) {
+        $GLOBALS['dle_ml_table_column_cache'] = array();
+    }
+
+    $table_suffix = trim((string)$table_suffix);
+    $column_name = trim((string)$column_name);
+    $cache_key = $table_suffix . ':' . $column_name;
+
+    if (isset($GLOBALS['dle_ml_table_column_cache'][$cache_key])) {
+        return $GLOBALS['dle_ml_table_column_cache'][$cache_key];
+    }
+
+    if (!$table_suffix || !$column_name || !dle_ml_table_exists($table_suffix)) {
+        $GLOBALS['dle_ml_table_column_cache'][$cache_key] = false;
+        return false;
+    }
+
+    $table_name = PREFIX . '_' . $table_suffix;
+    $safe_table = $db->safesql($table_name);
+    $safe_column = $db->safesql($column_name);
+
+    $result = $db->query("SHOW COLUMNS FROM `{$safe_table}` LIKE '{$safe_column}'", false, true);
+
+    if ($result instanceof mysqli_result) {
+        $exists = ($result->num_rows > 0);
+        $result->close();
+    } else {
+        $exists = false;
+    }
+
+    $GLOBALS['dle_ml_table_column_cache'][$cache_key] = $exists;
+
+    return $exists;
+}
+
 function dle_ml_table_cache_reset($table_suffix = '') {
     if (!isset($GLOBALS['dle_ml_table_exists_cache']) || !is_array($GLOBALS['dle_ml_table_exists_cache'])) return;
 
@@ -425,6 +527,18 @@ function dle_ml_table_cache_reset($table_suffix = '') {
         unset($GLOBALS['dle_ml_table_exists_cache'][$table_suffix]);
     } else {
         $GLOBALS['dle_ml_table_exists_cache'] = array();
+    }
+
+    if (isset($GLOBALS['dle_ml_table_column_cache']) && is_array($GLOBALS['dle_ml_table_column_cache'])) {
+        if ($table_suffix) {
+            foreach ($GLOBALS['dle_ml_table_column_cache'] as $cache_key => $cache_val) {
+                if (strpos($cache_key, $table_suffix . ':') === 0) {
+                    unset($GLOBALS['dle_ml_table_column_cache'][$cache_key]);
+                }
+            }
+        } else {
+            $GLOBALS['dle_ml_table_column_cache'] = array();
+        }
     }
 }
 
@@ -440,6 +554,7 @@ function dle_ml_install_schema($main_folder = '') {
     }
 
     $table_post = PREFIX . "_post_i18n";
+    $table_post_xfields = PREFIX . "_post_xfields_i18n";
     $table_category = PREFIX . "_category_i18n";
     $table_static = PREFIX . "_static_i18n";
     $table_settings = PREFIX . "_settings_i18n";
@@ -455,6 +570,14 @@ function dle_ml_install_schema($main_folder = '') {
         `keywords` text NOT NULL,
         `metatitle` varchar(300) NOT NULL DEFAULT '',
         `tags` text NOT NULL,
+        PRIMARY KEY (`news_id`,`lang`),
+        KEY `lang` (`lang`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", false, true);
+
+    $db->query("CREATE TABLE IF NOT EXISTS `{$table_post_xfields}` (
+        `news_id` int(11) unsigned NOT NULL,
+        `lang` varchar(32) NOT NULL,
+        `xfields` mediumtext NOT NULL,
         PRIMARY KEY (`news_id`,`lang`),
         KEY `lang` (`lang`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", false, true);
@@ -495,13 +618,20 @@ function dle_ml_install_schema($main_folder = '') {
 
     dle_ml_table_cache_reset();
 
-    if (!dle_ml_table_exists('post_i18n') || !dle_ml_table_exists('category_i18n') || !dle_ml_table_exists('static_i18n') || !dle_ml_table_exists('settings_i18n')) {
+    if (!dle_ml_table_exists('post_i18n') || !dle_ml_table_exists('post_xfields_i18n') || !dle_ml_table_exists('category_i18n') || !dle_ml_table_exists('static_i18n') || !dle_ml_table_exists('settings_i18n')) {
         return;
     }
 
-    $db->query("ALTER TABLE {$table_post} ADD COLUMN IF NOT EXISTS alt_name varchar(255) NOT NULL DEFAULT '' AFTER title", false, true);
-    $db->query("ALTER TABLE {$table_category} ADD COLUMN IF NOT EXISTS alt_name varchar(255) NOT NULL DEFAULT '' AFTER name", false, true);
-    $db->query("ALTER TABLE {$table_static} ADD COLUMN IF NOT EXISTS name varchar(255) NOT NULL DEFAULT '' AFTER lang", false, true);
+    if (!dle_ml_table_column_exists('post_i18n', 'alt_name')) {
+        $db->query("ALTER TABLE {$table_post} ADD COLUMN alt_name varchar(255) NOT NULL DEFAULT '' AFTER title", false, true);
+    }
+    if (!dle_ml_table_column_exists('category_i18n', 'alt_name')) {
+        $db->query("ALTER TABLE {$table_category} ADD COLUMN alt_name varchar(255) NOT NULL DEFAULT '' AFTER name", false, true);
+    }
+    if (!dle_ml_table_column_exists('static_i18n', 'name')) {
+        $db->query("ALTER TABLE {$table_static} ADD COLUMN name varchar(255) NOT NULL DEFAULT '' AFTER lang", false, true);
+    }
+    dle_ml_table_cache_reset();
 
     $safe_main = $db->safesql($main_folder);
 
@@ -511,17 +641,31 @@ function dle_ml_install_schema($main_folder = '') {
         LEFT JOIN {$table_post} t ON (t.news_id = p.id AND t.lang = '{$safe_main}')
         WHERE t.news_id IS NULL", false, true);
 
+    $db->query("INSERT INTO {$table_post_xfields} (news_id, lang, xfields)
+        SELECT p.id, '{$safe_main}', p.xfields
+        FROM " . PREFIX . "_post p
+        LEFT JOIN {$table_post_xfields} t ON (t.news_id = p.id AND t.lang = '{$safe_main}')
+        WHERE t.news_id IS NULL", false, true);
+
     $db->query("INSERT INTO {$table_category} (category_id, lang, name, alt_name, descr, keywords, metatitle, fulldescr)
         SELECT c.id, '{$safe_main}', c.name, c.alt_name, c.descr, c.keywords, c.metatitle, c.fulldescr
         FROM " . PREFIX . "_category c
         LEFT JOIN {$table_category} t ON (t.category_id = c.id AND t.lang = '{$safe_main}')
         WHERE t.category_id IS NULL", false, true);
 
-    $db->query("INSERT INTO {$table_static} (static_id, lang, name, descr, template, metadescr, metakeys, metatitle)
-        SELECT s.id, '{$safe_main}', s.name, s.descr, s.template, s.metadescr, s.metakeys, s.metatitle
-        FROM " . PREFIX . "_static s
-        LEFT JOIN {$table_static} t ON (t.static_id = s.id AND t.lang = '{$safe_main}')
-        WHERE t.static_id IS NULL", false, true);
+    if (dle_ml_table_column_exists('static_i18n', 'name')) {
+        $db->query("INSERT INTO {$table_static} (static_id, lang, name, descr, template, metadescr, metakeys, metatitle)
+            SELECT s.id, '{$safe_main}', s.name, s.descr, s.template, s.metadescr, s.metakeys, s.metatitle
+            FROM " . PREFIX . "_static s
+            LEFT JOIN {$table_static} t ON (t.static_id = s.id AND t.lang = '{$safe_main}')
+            WHERE t.static_id IS NULL", false, true);
+    } else {
+        $db->query("INSERT INTO {$table_static} (static_id, lang, descr, template, metadescr, metakeys, metatitle)
+            SELECT s.id, '{$safe_main}', s.descr, s.template, s.metadescr, s.metakeys, s.metatitle
+            FROM " . PREFIX . "_static s
+            LEFT JOIN {$table_static} t ON (t.static_id = s.id AND t.lang = '{$safe_main}')
+            WHERE t.static_id IS NULL", false, true);
+    }
 
     $base_settings = array(
         'home_title' => isset($config['home_title']) ? $config['home_title'] : '',
@@ -776,6 +920,310 @@ function dle_ml_save_post_translation($news_id, $lang_folder, $data = array()) {
     $db->query("INSERT INTO " . PREFIX . "_post_i18n (news_id, lang, title, alt_name, short_story, full_story, descr, keywords, metatitle, tags) VALUES ('{$news_id}', '{$safe_lang}', '{$title}', '{$alt_name}', '{$short_story}', '{$full_story}', '{$descr}', '{$keywords}', '{$metatitle}', '{$tags}') ON DUPLICATE KEY UPDATE title='{$title}', alt_name='{$alt_name}', short_story='{$short_story}', full_story='{$full_story}', descr='{$descr}', keywords='{$keywords}', metatitle='{$metatitle}', tags='{$tags}'");
 }
 
+function dle_ml_save_post_xfields_translation($news_id, $lang_folder, $xfields_raw = '') {
+    global $db;
+
+    if (!dle_ml_table_exists('post_xfields_i18n')) return;
+
+    $news_id = intval($news_id);
+    if ($news_id < 1) return;
+
+    $languages = dle_ml_get_languages();
+    if (!isset($languages[$lang_folder])) return;
+
+    $safe_lang = $db->safesql($lang_folder);
+    $safe_xfields = $db->safesql((string)$xfields_raw);
+
+    $db->query("INSERT INTO " . PREFIX . "_post_xfields_i18n (news_id, lang, xfields) VALUES ('{$news_id}', '{$safe_lang}', '{$safe_xfields}') ON DUPLICATE KEY UPDATE xfields='{$safe_xfields}'");
+}
+
+function dle_ml_get_post_xfields_translation($news_id, $lang_folder = '', $fallback = true) {
+    global $db, $config;
+
+    $news_id = intval($news_id);
+    if ($news_id < 1) return '';
+    if (!dle_ml_table_exists('post_xfields_i18n')) return '';
+
+    if (!$lang_folder) {
+        $lang_folder = isset($GLOBALS['dle_active_language']) ? $GLOBALS['dle_active_language'] : dle_ml_main_folder($config);
+    }
+
+    static $cache = array();
+    $cache_key = $news_id . ':' . $lang_folder . ':' . intval($fallback);
+
+    if (isset($cache[$cache_key])) return $cache[$cache_key];
+
+    $safe_lang = $db->safesql($lang_folder);
+    $row = $db->super_query("SELECT xfields FROM " . PREFIX . "_post_xfields_i18n WHERE news_id='{$news_id}' AND lang='{$safe_lang}'");
+
+    if (isset($row['xfields']) && $row['xfields'] !== '') {
+        $cache[$cache_key] = $row['xfields'];
+        return $cache[$cache_key];
+    }
+
+    if (!$fallback) {
+        $cache[$cache_key] = '';
+        return '';
+    }
+
+    $main_folder = dle_ml_main_folder($config);
+    if ($main_folder != $lang_folder) {
+        $safe_main = $db->safesql($main_folder);
+        $row = $db->super_query("SELECT xfields FROM " . PREFIX . "_post_xfields_i18n WHERE news_id='{$news_id}' AND lang='{$safe_main}'");
+        if (isset($row['xfields']) && $row['xfields'] !== '') {
+            $cache[$cache_key] = $row['xfields'];
+            return $cache[$cache_key];
+        }
+    }
+
+    $cache[$cache_key] = '';
+    return '';
+}
+
+function dle_ml_get_post_xfields_translations($news_id) {
+    global $db, $config;
+
+    $news_id = intval($news_id);
+    $languages = dle_ml_get_languages();
+    $main_folder = dle_ml_main_folder($config);
+    $result_data = array();
+
+    foreach ($languages as $folder => $meta) {
+        $result_data[$folder] = '';
+    }
+
+    if ($news_id < 1 || !dle_ml_table_exists('post_xfields_i18n')) {
+        return $result_data;
+    }
+
+    $result = $db->query("SELECT lang, xfields FROM " . PREFIX . "_post_xfields_i18n WHERE news_id='{$news_id}'");
+
+    while ($row = $db->get_row($result)) {
+        $folder = $row['lang'];
+        if (isset($result_data[$folder])) {
+            $result_data[$folder] = isset($row['xfields']) ? $row['xfields'] : '';
+        }
+    }
+
+    $db->free($result);
+
+    if (isset($result_data[$main_folder])) {
+        foreach ($result_data as $folder => $value) {
+            if ($folder == $main_folder) continue;
+            if (trim((string)$value) === '') {
+                $result_data[$folder] = $result_data[$main_folder];
+            }
+        }
+    }
+
+    return $result_data;
+}
+
+function dle_ml_apply_post_xfields_translation(&$row, $lang_folder = '') {
+    global $config;
+
+    if (!is_array($row) || !isset($row['id'])) return;
+
+    if (!$lang_folder) {
+        $lang_folder = isset($GLOBALS['dle_active_language']) ? $GLOBALS['dle_active_language'] : dle_ml_main_folder($config);
+    }
+
+    $translated_xfields = dle_ml_get_post_xfields_translation($row['id'], $lang_folder, true);
+    if ($translated_xfields !== '') {
+        $row['xfields'] = $translated_xfields;
+    }
+}
+
+function dle_ml_xfields_translation_definitions() {
+    if (!function_exists('xfieldsload')) return array();
+
+    $defs = xfieldsload();
+    if (!is_array($defs) || !count($defs)) return array();
+
+    $allowed = array('text', 'textarea', 'select');
+    $prepared = array();
+
+    foreach ($defs as $def) {
+        if (!isset($def[0]) || !isset($def[3])) continue;
+        $name = totranslit(trim((string)$def[0]));
+        $type = trim((string)$def[3]);
+        if (!$name || !in_array($type, $allowed)) continue;
+        $def[0] = $name;
+        $prepared[] = $def;
+    }
+
+    return $prepared;
+}
+
+function dle_ml_xfields_select_options_string($def, $lang_folder = '') {
+    global $config;
+
+    $default_options = isset($def[4]) ? (string)$def[4] : '';
+
+    if (!isset($def[40]) || trim((string)$def[40]) === '') {
+        return $default_options;
+    }
+
+    $i18n = json_decode((string)$def[40], true);
+    if (!is_array($i18n) || !count($i18n)) {
+        return $default_options;
+    }
+
+    if (!$lang_folder) {
+        $lang_folder = isset($GLOBALS['dle_active_language']) ? $GLOBALS['dle_active_language'] : dle_ml_main_folder($config);
+    }
+
+    if (isset($i18n[$lang_folder]) && trim((string)$i18n[$lang_folder]) !== '') {
+        return (string)$i18n[$lang_folder];
+    }
+
+    $main_folder = dle_ml_main_folder($config);
+    if (isset($i18n[$main_folder]) && trim((string)$i18n[$main_folder]) !== '') {
+        return (string)$i18n[$main_folder];
+    }
+
+    return $default_options;
+}
+
+function dle_ml_xfields_build_string($posted = array(), $category = '', $existing_raw = '', $parse_obj = null) {
+    $defs = dle_ml_xfields_translation_definitions();
+    if (!count($defs)) return '';
+
+    $existing = is_string($existing_raw) && $existing_raw !== '' && function_exists('xfieldsdataload') ? xfieldsdataload($existing_raw) : array();
+    $posted = is_array($posted) ? $posted : array();
+    $categories = array_filter(array_map('intval', explode(',', (string)$category)));
+    $rows = array();
+
+    foreach ($defs as $def) {
+        $name = $def[0];
+        $type = isset($def[3]) ? $def[3] : '';
+        $cat_limit = isset($def[2]) ? trim((string)$def[2]) : '';
+
+        if ($cat_limit && count($categories)) {
+            $allowed_cats = array_filter(array_map('intval', explode(',', $cat_limit)));
+            if (count($allowed_cats) && !count(array_intersect($categories, $allowed_cats))) continue;
+        }
+
+        $has_posted_value = array_key_exists($name, $posted);
+        $value_raw = $has_posted_value ? $posted[$name] : (isset($existing[$name]) ? $existing[$name] : '');
+
+        if ($type === 'select') {
+            $selected = array();
+            if (is_array($value_raw)) {
+                $selected = $value_raw;
+            } elseif (is_string($value_raw) && $value_raw !== '') {
+                $selected = explode(',', $value_raw);
+            }
+
+            $result_values = array();
+            foreach ($selected as $item) {
+                $item = trim((string)$item);
+                if ($item === '') continue;
+                $item = str_replace(',', '&#x2C;', $item);
+                $result_values[$item] = true;
+            }
+
+            $value = implode(',', array_keys($result_values));
+        } else {
+            $value = is_array($value_raw) ? '' : (string)$value_raw;
+            $value = trim($value);
+
+            if ($value !== '' && is_object($parse_obj) && method_exists($parse_obj, 'process') && method_exists($parse_obj, 'BB_Parse')) {
+                $value = $parse_obj->BB_Parse($parse_obj->process($value));
+            }
+
+            if ($type === 'textarea' && $value === '<p><br></p>') {
+                $value = '';
+            }
+        }
+
+        if ($value === '') continue;
+
+        $value = str_ireplace("{title", "&#123;title", $value);
+        $value = str_ireplace("{short-story", "&#123;short-story", $value);
+        $value = str_ireplace("{full-story", "&#123;full-story", $value);
+
+        $safe_name = str_replace(array("|", "\r\n"), array("&#124;", "__NEWL__"), $name);
+        $safe_value = str_replace(array("|", "\r\n"), array("&#124;", "__NEWL__"), $value);
+
+        $rows[] = $safe_name . "|" . $safe_value;
+    }
+
+    return implode("||", $rows);
+}
+
+function dle_ml_render_xfields_translation_inputs($lang_folder, $values = array()) {
+    global $lang;
+
+    $defs = dle_ml_xfields_translation_definitions();
+    if (!count($defs)) return '';
+
+    $values = is_array($values) ? $values : array();
+    $folder_safe = htmlspecialchars((string)$lang_folder, ENT_QUOTES, 'UTF-8');
+    $title = isset($lang['xfield_xlist']) ? $lang['xfield_xlist'] : 'Extra Fields';
+    $html = '<div class="form-group"><label class="control-label col-md-2 col-sm-3">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</label><div class="col-md-10 col-sm-9">';
+
+    foreach ($defs as $def) {
+        $field_name = $def[0];
+        $field_type = isset($def[3]) ? $def[3] : 'text';
+        $field_title = isset($def[1]) ? $def[1] : $field_name;
+
+        $field_title_safe = htmlspecialchars((string)$field_title, ENT_QUOTES, 'UTF-8');
+        $field_name_safe = htmlspecialchars((string)$field_name, ENT_QUOTES, 'UTF-8');
+        $input_name = "translations[{$folder_safe}][xfields][{$field_name_safe}]";
+        $current = isset($values[$field_name]) ? (string)$values[$field_name] : '';
+
+        $html .= '<div style="margin-bottom:10px;"><div class="text-muted text-size-small" style="margin-bottom:4px;">' . $field_title_safe . '</div>';
+
+        if ($field_type === 'textarea') {
+            $current_safe = htmlspecialchars($current, ENT_QUOTES, 'UTF-8');
+            $html .= '<textarea dir="auto" class="classic form-control" style="max-width:700px;height:90px;" name="' . $input_name . '">' . $current_safe . '</textarea>';
+        } elseif ($field_type === 'select') {
+            $is_multi = !empty($def[34]);
+            $selected_values = array();
+
+            if ($current !== '') {
+                foreach (explode(',', str_replace(array('&amp;#x2C;', '&#x2C;'), ',', $current)) as $part) {
+                    $part = trim((string)$part);
+                    if ($part !== '') $selected_values[$part] = true;
+                }
+            }
+
+            $multi_attr = $is_multi ? ' multiple' : '';
+            $name_attr = $is_multi ? $input_name . '[]' : $input_name;
+            $select_class = $is_multi ? 'categoryselect' : 'uniform';
+            $width_style = $is_multi ? ' style="width:100%;max-width:700px;height:120px;"' : ' style="width:100%;max-width:350px;"';
+
+            $html .= '<select name="' . $name_attr . '" class="' . $select_class . '"' . $multi_attr . $width_style . '>';
+            $options_raw = dle_ml_xfields_select_options_string($def, $lang_folder);
+            $options_raw = str_replace(array("\r\n", "\r"), "\n", (string)$options_raw);
+            $options = explode("\n", $options_raw);
+
+            foreach ($options as $raw_opt) {
+                $raw_opt = trim((string)$raw_opt);
+                if ($raw_opt === '') continue;
+                $parts = explode('|', $raw_opt);
+                $opt_value = trim((string)$parts[0]);
+                $opt_label = isset($parts[1]) ? trim((string)$parts[1]) : $opt_value;
+                $sel = isset($selected_values[$opt_value]) ? ' selected' : '';
+
+                $html .= '<option value="' . htmlspecialchars($opt_value, ENT_QUOTES, 'UTF-8') . '"' . $sel . '>' . htmlspecialchars($opt_label, ENT_QUOTES, 'UTF-8') . '</option>';
+            }
+
+            $html .= '</select>';
+        } else {
+            $current_safe = htmlspecialchars($current, ENT_QUOTES, 'UTF-8');
+            $html .= '<input type="text" dir="auto" class="form-control" style="max-width:700px;" name="' . $input_name . '" value="' . $current_safe . '">';
+        }
+
+        $html .= '</div>';
+    }
+
+    $html .= '</div></div>';
+
+    return $html;
+}
+
 function dle_ml_save_category_translation($category_id, $lang_folder, $data = array()) {
     global $db;
 
@@ -827,7 +1275,11 @@ function dle_ml_save_static_translation($static_id, $lang_folder, $data = array(
     $metakeys = isset($data['metakeys']) ? $db->safesql($data['metakeys']) : '';
     $metatitle = isset($data['metatitle']) ? $db->safesql($data['metatitle']) : '';
 
-    $db->query("INSERT INTO " . PREFIX . "_static_i18n (static_id, lang, name, descr, template, metadescr, metakeys, metatitle) VALUES ('{$static_id}', '{$safe_lang}', '{$name}', '{$descr}', '{$template}', '{$metadescr}', '{$metakeys}', '{$metatitle}') ON DUPLICATE KEY UPDATE name='{$name}', descr='{$descr}', template='{$template}', metadescr='{$metadescr}', metakeys='{$metakeys}', metatitle='{$metatitle}'");
+    if (dle_ml_table_column_exists('static_i18n', 'name')) {
+        $db->query("INSERT INTO " . PREFIX . "_static_i18n (static_id, lang, name, descr, template, metadescr, metakeys, metatitle) VALUES ('{$static_id}', '{$safe_lang}', '{$name}', '{$descr}', '{$template}', '{$metadescr}', '{$metakeys}', '{$metatitle}') ON DUPLICATE KEY UPDATE name='{$name}', descr='{$descr}', template='{$template}', metadescr='{$metadescr}', metakeys='{$metakeys}', metatitle='{$metatitle}'");
+    } else {
+        $db->query("INSERT INTO " . PREFIX . "_static_i18n (static_id, lang, descr, template, metadescr, metakeys, metatitle) VALUES ('{$static_id}', '{$safe_lang}', '{$descr}', '{$template}', '{$metadescr}', '{$metakeys}', '{$metatitle}') ON DUPLICATE KEY UPDATE descr='{$descr}', template='{$template}', metadescr='{$metadescr}', metakeys='{$metakeys}', metatitle='{$metatitle}'");
+    }
 }
 
 function dle_ml_get_post_translations($news_id) {
@@ -1110,7 +1562,12 @@ function dle_ml_maybe_redirect_legacy_public(&$config_data) {
                 break;
             case 'search':
                 $target = (!empty($query_arr['mode']) && $query_arr['mode'] == 'advanced') ? dle_ml_public_url('search_advanced', array(), $config_data, $current_code) : dle_ml_public_url('search', array(), $config_data, $current_code);
-                if (isset($query_arr['story']) && $query_arr['story'] !== '') $target .= '?story=' . rawurlencode((string)$query_arr['story']);
+                $search_query = $query_arr;
+                unset($search_query['site_lang']);
+                if (!isset($search_query['subaction']) || $search_query['subaction'] === '') $search_query['subaction'] = 'search';
+                if (!isset($search_query['do']) || $search_query['do'] === '') $search_query['do'] = 'search';
+                $search_qs = http_build_query($search_query);
+                if ($search_qs) $target .= '?' . $search_qs;
                 break;
             default:
                 break;
@@ -1124,6 +1581,22 @@ function dle_ml_maybe_redirect_legacy_public(&$config_data) {
     }
 
     if ($target) {
+        $current_rel = dle_ml_current_url_no_lang_prefix();
+        $target_path = parse_url($target, PHP_URL_PATH);
+        $target_query = parse_url($target, PHP_URL_QUERY);
+        if (!$target_path) $target_path = '/';
+
+        if ($target_query) {
+            parse_str($target_query, $target_query_arr);
+            unset($target_query_arr['site_lang']);
+            $target_query = http_build_query($target_query_arr);
+            if ($target_query) $target_path .= '?' . $target_query;
+        }
+
+        if ($target_path === $current_rel) {
+            return;
+        }
+
         header("HTTP/1.0 301 Moved Permanently");
         header("Location: {$target}");
         die("Redirect");

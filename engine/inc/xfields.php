@@ -52,7 +52,11 @@ if ($xf_inited !== true) {
 	    foreach ($data as $index => $value) {
 	      $value = array_values($value);
 	      foreach ($value as $index2 => $value2) {
-	        $value2 = stripslashes($value2);
+	        // Keep JSON escapes for multilingual select options (field index 40).
+	        // Otherwise "\r\n" becomes "rn" after stripslashes() and line options collapse.
+	        if ((int)$index2 !== 40) {
+	        	$value2 = stripslashes($value2);
+	        }
 	        $value2 = str_replace("|", "&#124;", $value2);
 	        $value2 = str_replace("\r\n", "__NEWL__", $value2);
 	        $filecontents .= $value2 . ($index2 < count($value) - 1 ? "|" : "");
@@ -98,6 +102,91 @@ if ($xf_inited !== true) {
 		$txt = str_replace("&#x2C;", ",", $txt);
 
 		return $txt;
+	}
+
+	function dle_xfields_select_options_i18n($field_def) {
+		$data = array();
+
+		if (!is_array($field_def) || !isset($field_def[40]) || !trim((string)$field_def[40])) {
+			return $data;
+		}
+
+		$decoded = json_decode((string)$field_def[40], true);
+		if (!is_array($decoded) || !count($decoded)) {
+			return $data;
+		}
+
+		foreach ($decoded as $folder => $raw_options) {
+			$folder = totranslit((string)$folder, false, false);
+			if (!$folder) continue;
+			$data[$folder] = (string)$raw_options;
+		}
+
+		return $data;
+	}
+
+	function dle_xfields_select_options_raw($field_def, $lang_folder = '') {
+		global $config;
+
+		$default_options = (is_array($field_def) && isset($field_def[4])) ? (string)$field_def[4] : '';
+		$i18n = dle_xfields_select_options_i18n($field_def);
+
+		if (!count($i18n)) return $default_options;
+
+		if (!$lang_folder) {
+			if (isset($GLOBALS['dle_active_language']) && $GLOBALS['dle_active_language']) {
+				$lang_folder = $GLOBALS['dle_active_language'];
+			} elseif (isset($config['active_language']) && $config['active_language']) {
+				$lang_folder = $config['active_language'];
+			}
+		}
+
+		$lang_folder = totranslit((string)$lang_folder, false, false);
+		if ($lang_folder && isset($i18n[$lang_folder]) && trim((string)$i18n[$lang_folder]) !== '') {
+			return (string)$i18n[$lang_folder];
+		}
+
+		if (function_exists('dle_ml_main_folder')) {
+			$main_folder = dle_ml_main_folder($config);
+			if ($main_folder && isset($i18n[$main_folder]) && trim((string)$i18n[$main_folder]) !== '') {
+				return (string)$i18n[$main_folder];
+			}
+		}
+
+		return $default_options;
+	}
+
+	function dle_xfields_select_options_lines($field_def, $lang_folder = '') {
+		$raw = dle_xfields_select_options_raw($field_def, $lang_folder);
+		if ($raw === '') return array();
+
+		$raw = str_replace(array("\r\n", "\r"), "\n", (string)$raw);
+		$rows = explode("\n", $raw);
+		$result = array();
+
+		foreach ($rows as $row) {
+			$row = trim((string)$row);
+			if ($row === '') continue;
+			$result[] = $row;
+		}
+
+		return $result;
+	}
+
+	function dle_xfields_split_lines($raw) {
+		$raw = (string)$raw;
+		if ($raw === '') return array();
+
+		$rows = preg_split("/\r\n|\n|\r/u", $raw);
+		$result = array();
+
+		foreach ($rows as $row) {
+			$row = trim((string)$row);
+			if ($row === '') continue;
+			$result[] = $row;
+		}
+
+		return $result;
 	}
 
 	$xf_inited = true;
@@ -174,7 +263,7 @@ switch ($xfieldsaction) {
 			
             $options = array();
             
-			foreach (explode("\r\n", $editedxfield["4_select"]) as $name => $value) {
+			foreach (dle_xfields_split_lines($editedxfield["4_select"]) as $name => $value) {
               $value = trim($value);
               if (!in_array($value, $options)) {
                 $options[] = $value;
@@ -186,6 +275,43 @@ switch ($xfieldsaction) {
             }
 			
             $editedxfield[4] = implode("\r\n", $options);
+			$editedxfield[40] = '';
+
+			if (function_exists('dle_ml_get_languages')) {
+				$ml_languages = dle_ml_get_languages();
+				$ml_options = array();
+
+				if (is_array($ml_languages) && count($ml_languages)) {
+					$posted_i18n = (isset($editedxfield['4_select_i18n']) && is_array($editedxfield['4_select_i18n'])) ? $editedxfield['4_select_i18n'] : array();
+
+					foreach ($ml_languages as $ml_folder => $ml_meta) {
+						$ml_folder = totranslit((string)$ml_folder, false, false);
+						if (!$ml_folder) continue;
+
+						$raw_options = isset($posted_i18n[$ml_folder]) ? (string)$posted_i18n[$ml_folder] : '';
+						if (trim($raw_options) === '') $raw_options = $editedxfield[4];
+
+						$ml_unique = array();
+						foreach (dle_xfields_split_lines($raw_options) as $ml_item) {
+							$ml_item = trim((string)$ml_item);
+							if ($ml_item === '') continue;
+							if (!in_array($ml_item, $ml_unique, true)) {
+								$ml_unique[] = $ml_item;
+							}
+						}
+
+						if (count($ml_unique) < 2) {
+							$ml_unique = $options;
+						}
+
+						$ml_options[$ml_folder] = implode("\r\n", $ml_unique);
+					}
+				}
+
+				if (count($ml_options)) {
+					$editedxfield[40] = json_encode($ml_options, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+				}
+			}
 
           } else {
 
@@ -197,7 +323,7 @@ switch ($xfieldsaction) {
 			
           }
 
-          unset($editedxfield["4_text"], $editedxfield["4_textarea"], $editedxfield["4_select"]);
+          unset($editedxfield["4_text"], $editedxfield["4_textarea"], $editedxfield["4_select"], $editedxfield["4_select_i18n"]);
 
           if ($editedxfield[3] == "select") {
 			$editedxfield[34] = ($editedxfield[34] == "on" ? 1 : 0);
@@ -206,6 +332,7 @@ switch ($xfieldsaction) {
           } else {
 			$editedxfield[34] = 0;
 			$editedxfield[35] = '';
+			$editedxfield[40] = '';
 
           }
 		  
@@ -388,6 +515,10 @@ switch ($xfieldsaction) {
 		$checked17 = ($editedxfield[29] ? " checked" : "");
 		$checked18 = ($editedxfield[30] ? " checked" : "");
 		$checked19 = ($editedxfield[34] ? " checked" : "");
+
+		$select_i18n_map = dle_xfields_select_options_i18n($editedxfield);
+		$ml_languages_for_select = function_exists('dle_ml_get_languages') ? dle_ml_get_languages() : array();
+		$ml_main_folder = function_exists('dle_ml_main_folder') ? dle_ml_main_folder($config) : '';
 		
 ?>
     <form method="post" name="xfieldsform" class="form-horizontal">
@@ -551,7 +682,36 @@ HTML;
 		<div class="form-group" id="select_options">
 		  <label class="control-label col-sm-3"><?php echo $lang['xfield_xfaul']; ?></label>
 		  <div class="col-sm-9">
-			<textarea dir="auto" class="classic" style="width:100%;max-width: 25rem; height: 6.25rem;" name="editedxfield[4_select]"><?php if (isset($editedxfield[4][0]) AND $editedxfield[4][0]  == "\r") $editedxfield[4] = "\n".$editedxfield[4]; echo ($editedxfield[3] == "select") ? htmlspecialchars($editedxfield[4], ENT_QUOTES, 'UTF-8' ) : "";?></textarea><div class="text-muted text-size-small"><?php echo $lang['xfield_xfsel']; ?></div>
+			<?php
+				$select_main_options = ($editedxfield[3] == "select") ? (string)$editedxfield[4] : "";
+				if (isset($select_main_options[0]) AND $select_main_options[0] == "\r") $select_main_options = "\n".$select_main_options;
+
+				if (!is_array($ml_languages_for_select) || !count($ml_languages_for_select)) {
+					echo '<textarea dir="auto" class="classic" style="width:100%;max-width: 25rem; height: 6.25rem;" name="editedxfield[4_select]">' . htmlspecialchars($select_main_options, ENT_QUOTES, 'UTF-8') . '</textarea>';
+				} else {
+					foreach ($ml_languages_for_select as $ml_folder => $ml_meta) {
+						$ml_folder = totranslit((string)$ml_folder, false, false);
+						if (!$ml_folder) continue;
+
+						$ml_label = isset($ml_meta['title']) ? (string)$ml_meta['title'] : $ml_folder;
+						$ml_title_safe = htmlspecialchars($ml_label, ENT_QUOTES, 'UTF-8');
+						$ml_value = '';
+						$ml_name = '';
+
+						if ($ml_main_folder && $ml_folder == $ml_main_folder) {
+							$ml_name = 'editedxfield[4_select]';
+							$ml_value = $select_main_options;
+						} else {
+							$ml_name = 'editedxfield[4_select_i18n][' . htmlspecialchars($ml_folder, ENT_QUOTES, 'UTF-8') . ']';
+							$ml_value = isset($select_i18n_map[$ml_folder]) ? (string)$select_i18n_map[$ml_folder] : $select_main_options;
+						}
+
+						echo '<div class="text-muted text-size-small" style="margin:8px 0 4px;">' . $ml_title_safe . '</div>';
+						echo '<textarea dir="auto" class="classic" style="width:100%;max-width: 25rem; height: 6.25rem;" name="' . $ml_name . '">' . htmlspecialchars($ml_value, ENT_QUOTES, 'UTF-8') . '</textarea>';
+					}
+				}
+			?>
+			<div class="text-muted text-size-small"><?php echo $lang['xfield_xfsel']; ?></div>
 		  </div>
 		 </div>
 
@@ -1243,7 +1403,10 @@ HTML;
 		$fieldvalue = explode(',', $fieldvalue);
 		$fieldvalue = array_map('clear_select', $fieldvalue);
 
-        foreach (explode("\r\n", htmlspecialchars($value[4], ENT_QUOTES, 'UTF-8' )) as $index1 => $value1) {
+		$current_select_lang = isset($GLOBALS['dle_active_language']) ? $GLOBALS['dle_active_language'] : (isset($config['active_language']) ? $config['active_language'] : '');
+		$localized_options = dle_xfields_select_options_lines($value, $current_select_lang);
+
+        foreach ($localized_options as $index1 => $value1) {
 		   
 			$value1 = explode("|", $value1);
 			if( count($value1) < 2) $value1[1] = $value1[0];
@@ -2666,10 +2829,13 @@ HTML;
 			if ($value[3] == "select") {
 				
 				if(isset($_POST['xfield'][$value[0]]) AND is_array($_POST['xfield'][$value[0]]) AND count($_POST['xfield'][$value[0]]) ) {
-					$options = explode("\r\n", $value[4]);
+					$current_select_lang = isset($GLOBALS['dle_active_language']) ? $GLOBALS['dle_active_language'] : (isset($config['active_language']) ? $config['active_language'] : '');
+					$options = dle_xfields_select_options_lines($value, $current_select_lang);
 					$temp_arr = [];
 
 					foreach ($_POST['xfield'][$value[0]] as $tempval) {
+						$tempval = intval($tempval);
+						if (!isset($options[$tempval])) continue;
 						$tempval = explode("|", $options[$tempval]);
 						$temp_arr[] =  str_replace(',', '&#x2C;', $tempval[0] );
 					}
@@ -2861,10 +3027,13 @@ HTML;
 		if ($value[3] == "select") {
 
 			if (isset($_POST['xfield'][$value[0]]) AND is_array($_POST['xfield'][$value[0]]) AND count($_POST['xfield'][$value[0]])) {
-				$options = explode("\r\n", $value[4]);
+				$current_select_lang = isset($GLOBALS['dle_active_language']) ? $GLOBALS['dle_active_language'] : (isset($config['active_language']) ? $config['active_language'] : '');
+				$options = dle_xfields_select_options_lines($value, $current_select_lang);
 				$temp_arr = [];
 
 				foreach ($_POST['xfield'][$value[0]] as $tempval) {
+					$tempval = intval($tempval);
+					if (!isset($options[$tempval])) continue;
 					$tempval = explode("|", $options[$tempval]);
 					$temp_arr[] =  $tempval[0];
 				}

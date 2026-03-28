@@ -49,12 +49,13 @@ if( $tpl->result['topnews'] === false ) {
 	$config['top_number'] = intval($config['top_number']);
 	if ($config['top_number'] < 1 ) $config['top_number'] = 10;
 	
-	$db->query( "SELECT p.id, p.date, p.short_story, p.xfields, p.title, p.category, p.alt_name FROM " . PREFIX . "_post p LEFT JOIN " . PREFIX . "_post_extras e ON (p.id=e.news_id) WHERE p.approve=1 AND p.date >= '$this_month' - INTERVAL 1 MONTH AND p.date < '$this_month' ORDER BY rating DESC, comm_num DESC, news_read DESC, date DESC LIMIT 0,{$config['top_number']}" );
-	
-	while ( $row = $db->get_row() ) {
+		$result = $db->query( "SELECT p.id, p.date, p.short_story, p.xfields, p.title, p.category, p.alt_name FROM " . PREFIX . "_post p LEFT JOIN " . PREFIX . "_post_extras e ON (p.id=e.news_id) WHERE p.approve=1 AND p.date >= '$this_month' - INTERVAL 1 MONTH AND p.date < '$this_month' ORDER BY e.rating DESC, p.comm_num DESC, e.news_read DESC, p.date DESC LIMIT 0,{$config['top_number']}" );
+		
+		if ( $result ) while ( $row = $db->get_row($result) ) {
 		
 		$row['date'] = strtotime( $row['date'] );
 		dle_ml_apply_post_translation($row);
+		dle_ml_apply_post_xfields_translation($row);
 
 		if( ! $row['category'] ) {
 			$my_cat = "---";
@@ -486,7 +487,9 @@ if( $tpl->result['topnews'] === false ) {
 	}
 
 	$tpl->clear();	
-	$db->free();
+		if ( $result ) {
+			$db->free($result);
+		}
 
 	create_cache( "topnews", $tpl->result['topnews'], $config['skin'], true );
 }

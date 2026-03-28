@@ -142,7 +142,9 @@ HTML;
 			
 		}
 		
-		if( $static_result['allow_template'] OR $view_template == "print" ) {
+		// Always render static pages through template wrapper (static.tpl by default)
+		// and inject admin content into {static}. This keeps layout controlled by theme.
+		if( $view_template == "print" OR $static_result['allow_template'] OR !$static_result['allow_template'] ) {
 			
 			if( $view_template == "print" ) $tpl->load_template( 'static_print.tpl' );
 			elseif( $static_result['tpl'] != '' ) $tpl->load_template( $static_result['tpl'] . '.tpl' );

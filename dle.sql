@@ -224,6 +224,7 @@ CREATE TABLE `dle_category_i18n` (
   `category_id` int UNSIGNED NOT NULL,
   `lang` varchar(32) NOT NULL,
   `name` varchar(100) NOT NULL DEFAULT '',
+  `alt_name` varchar(255) NOT NULL DEFAULT '',
   `descr` varchar(300) NOT NULL DEFAULT '',
   `keywords` text NOT NULL,
   `metatitle` varchar(300) NOT NULL DEFAULT '',

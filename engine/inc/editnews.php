@@ -894,6 +894,7 @@ HTML;
 	}
 
 	$ml_translations_data = dle_ml_get_post_translations($id);
+	$ml_xfields_translations = dle_ml_get_post_xfields_translations($id);
 
 	if( isset($ml_translations_data[$ml_main_folder]) ) {
 		foreach( array('title', 'short_story', 'full_story', 'descr', 'keywords', 'metatitle', 'tags') as $ml_field ) {
@@ -901,6 +902,10 @@ HTML;
 				$row[$ml_field] = $ml_translations_data[$ml_main_folder][$ml_field];
 			}
 		}
+	}
+
+	if (isset($ml_xfields_translations[$ml_main_folder]) && trim((string)$ml_xfields_translations[$ml_main_folder]) !== '') {
+		$row['xfields'] = $ml_xfields_translations[$ml_main_folder];
 	}
 
 	$cat_list = explode( ',', $row['category'] );
@@ -991,6 +996,13 @@ HTML;
 			$ml_translations_data[$ml_folder]['keywords'] = isset($ml_item['keywords']) ? str_replace("&amp;", "&", $ml_item['keywords']) : '';
 			$ml_translations_data[$ml_folder]['metatitle'] = isset($ml_item['metatitle']) ? stripslashes($ml_item['metatitle']) : '';
 			$ml_translations_data[$ml_folder]['tags'] = isset($ml_item['tags']) ? str_replace("&amp;", "&", $ml_item['tags']) : '';
+		}
+	}
+
+	$ml_xfields_values = array();
+	if (is_array($ml_xfields_translations) && count($ml_xfields_translations)) {
+		foreach ($ml_xfields_translations as $ml_folder => $ml_xfields_raw) {
+			$ml_xfields_values[$ml_folder] = is_string($ml_xfields_raw) && $ml_xfields_raw !== '' ? xfieldsdataload($ml_xfields_raw) : array();
 		}
 	}
 
@@ -1844,12 +1856,14 @@ HTML;
 		$ml_code_safe = htmlspecialchars($ml_code, ENT_QUOTES, 'UTF-8');
 		$ml_values = isset($ml_translations_data[$ml_folder]) ? $ml_translations_data[$ml_folder] : array();
 		$ml_value_title = isset($ml_values['title']) ? htmlspecialchars($ml_values['title'], ENT_QUOTES, 'UTF-8') : '';
-		$ml_value_short = isset($ml_values['short_story']) ? htmlspecialchars($ml_values['short_story'], ENT_QUOTES, 'UTF-8') : '';
-		$ml_value_full = isset($ml_values['full_story']) ? htmlspecialchars($ml_values['full_story'], ENT_QUOTES, 'UTF-8') : '';
+		$ml_value_short = isset($ml_values['short_story']) ? str_replace('</textarea>', '&lt;/textarea&gt;', (string)$ml_values['short_story']) : '';
+		$ml_value_full = isset($ml_values['full_story']) ? str_replace('</textarea>', '&lt;/textarea&gt;', (string)$ml_values['full_story']) : '';
 		$ml_value_tags = isset($ml_values['tags']) ? htmlspecialchars($ml_values['tags'], ENT_QUOTES, 'UTF-8') : '';
 		$ml_value_metatitle = isset($ml_values['metatitle']) ? htmlspecialchars($ml_values['metatitle'], ENT_QUOTES, 'UTF-8') : '';
 		$ml_value_descr = isset($ml_values['descr']) ? htmlspecialchars($ml_values['descr'], ENT_QUOTES, 'UTF-8') : '';
 		$ml_value_keywords = isset($ml_values['keywords']) ? htmlspecialchars($ml_values['keywords'], ENT_QUOTES, 'UTF-8') : '';
+		$ml_xfields_values_current = isset($ml_xfields_values[$ml_folder]) ? $ml_xfields_values[$ml_folder] : array();
+		$ml_xfields_html = dle_ml_render_xfields_translation_inputs($ml_folder, $ml_xfields_values_current);
 		$ml_nav_tabs_html .= "<li><a href=\"#tabml_{$ml_code_safe}\" data-toggle=\"tab\">{$ml_title}</a></li>";
 
 		$ml_panes_html .= <<<HTML
@@ -1898,6 +1912,7 @@ HTML;
 		<input type="button" onclick="auto_keywords_lang('{$ml_folder_safe}',2); return false;" class="btn bg-primary-600 btn-sm btn-raised" value="{$lang['btn_keyword']}">
 	  </div>
 	 </div>
+	 {$ml_xfields_html}
 </div>
 HTML;
 	}
@@ -2617,6 +2632,7 @@ HTML;
 				$ml_main_folder = dle_ml_main_folder($config);
 				$ml_languages = dle_ml_admin_languages($config, false);
 				$ml_translations = isset($_POST['translations']) && is_array($_POST['translations']) ? $_POST['translations'] : array();
+				$ml_xfields_translations_save = dle_ml_get_post_xfields_translations($item_db[0]);
 
 				dle_ml_save_post_translation($item_db[0], $ml_main_folder, array(
 					'title' => $title_main,
@@ -2627,6 +2643,7 @@ HTML;
 					'metatitle' => stripslashes($metatags['title']),
 					'tags' => $_POST['tags'],
 				));
+				dle_ml_save_post_xfields_translation($item_db[0], $ml_main_folder, $filecontents);
 
 				$ml_req_meta_title = isset($_REQUEST['meta_title']) ? $_REQUEST['meta_title'] : '';
 				$ml_req_descr = isset($_REQUEST['descr']) ? $_REQUEST['descr'] : '';
@@ -2666,6 +2683,11 @@ HTML;
 						'metatitle' => $ml_metatitle,
 						'tags' => $ml_tags,
 					));
+
+					$ml_xfields_posted = isset($ml_item['xfields']) && is_array($ml_item['xfields']) ? $ml_item['xfields'] : array();
+					$ml_existing_xfields = isset($ml_xfields_translations_save[$ml_folder]) ? $ml_xfields_translations_save[$ml_folder] : '';
+					$ml_xfields_raw = dle_ml_xfields_build_string($ml_xfields_posted, $category_list, $ml_existing_xfields, $parse);
+					dle_ml_save_post_xfields_translation($item_db[0], $ml_folder, $ml_xfields_raw);
 				}
 
 				$_REQUEST['meta_title'] = $ml_req_meta_title;

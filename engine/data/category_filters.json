@@ -1,0 +1,70 @@
+[
+    {
+        "id": "f69c642231b8e",
+        "title": "Colors",
+        "title_i18n": {
+            "Azerbaijan": "Regnler",
+            "English": "Colors",
+            "Russian": "Cveti"
+        },
+        "xfield": "color",
+        "type": "checkbox",
+        "enabled": 1,
+        "categories": [
+            4,
+            5,
+            6
+        ]
+    },
+    {
+        "id": "f69c644e6123d",
+        "title": "Price range",
+        "title_i18n": {
+            "Azerbaijan": "Qiymet araliqi",
+            "English": "Price range",
+            "Russian": "cenavoy inteval"
+        },
+        "xfield": "price",
+        "type": "range",
+        "enabled": 1,
+        "categories": [
+            4,
+            5,
+            6
+        ]
+    },
+    {
+        "id": "f_auto_type_001",
+        "title": "Type",
+        "title_i18n": {
+            "Azerbaijan": "Nov",
+            "English": "Type",
+            "Russian": "Tip"
+        },
+        "xfield": "product_type",
+        "type": "radio",
+        "enabled": 1,
+        "categories": [
+            4,
+            5,
+            6
+        ]
+    },
+    {
+        "id": "f_auto_fuel_001",
+        "title": "Fuel",
+        "title_i18n": {
+            "Azerbaijan": "Yanacaq",
+            "English": "Fuel",
+            "Russian": "Toplivo"
+        },
+        "xfield": "fuel",
+        "type": "checkbox",
+        "enabled": 1,
+        "categories": [
+            4,
+            5,
+            6
+        ]
+    }
+]

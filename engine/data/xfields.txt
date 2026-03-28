@@ -1,1 +1,4 @@
-text|text||text||1|0|0|0|||0|0||||||||||||||||0||||||0|||||
+color|color|1|select|black__NEWL__red__NEWL__blue|1|0|0|0|||0|0||||||||||||||||0||||||0||||||{&quot;Azerbaijan&quot;:&quot;qara\r\nqirmizi\r\ngoy&quot;,&quot;English&quot;:&quot;black\r\nred\r\nblue&quot;,&quot;Russian&quot;:&quot;cerniy\r\nkrasniy\r\nsiniy&quot;}
+price|price|1|text||1|0|0|0|||0|0||||||||||||||||0||||||0|||||
+product_type|product_type|1|select|economy__NEWL__comfort__NEWL__premium|1|0|0|0|||0|0||||||||||||||||0||||||0||||||{&quot;Azerbaijan&quot;:&quot;ekonom\r\nkomfort\r\npremium&quot;,&quot;English&quot;:&quot;economy\r\ncomfort\r\npremium&quot;,&quot;Russian&quot;:&quot;ekonom\r\nkomfort\r\npremium&quot;}
+fuel|fuel|1|select|petrol__NEWL__diesel__NEWL__hybrid__NEWL__electric|1|0|0|0|||0|0||||||||||||||||0||||||0||||||{&quot;Azerbaijan&quot;:&quot;benzin\r\ndizel\r\nhibrid\r\nelektrik&quot;,&quot;English&quot;:&quot;petrol\r\ndiesel\r\nhybrid\r\nelectric&quot;,&quot;Russian&quot;:&quot;benzin\r\ndizel\r\ngibrid\r\nelektro&quot;}

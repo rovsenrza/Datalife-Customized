@@ -51,6 +51,7 @@ if( !defined('DATALIFEENGINE') ) {
 	
 	if ( isset($row['id']) AND $row['id'] ) {
 		dle_ml_apply_post_translation($row);
+		dle_ml_apply_post_xfields_translation($row);
 		
 		$options = news_permission( $row['access'] );
 		
@@ -1368,6 +1369,7 @@ HTML;
 								
 				while ( $related_query_id && ($related = $db->get_row($related_query_id)) ) {
 					dle_ml_apply_post_translation($related);
+					dle_ml_apply_post_xfields_translation($related);
 					
 					if ( $first_show ) $related_ids[] =	$related['id'];
 

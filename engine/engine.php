@@ -256,6 +256,8 @@ switch ( $do ) {
 		$sql_select = '';
 		$sql_count = '';
 		$sql_news = '';
+		$dle_category_filters_html = '';
+		$dle_category_filter_enabled = false;
 
 		// ################ Show of a category #################
 		if ($do == "cat" AND $category AND !$subaction) {
@@ -387,11 +389,50 @@ switch ( $do ) {
 				if (isset ( $_SESSION['dle_direction_cat_'.$category_id] )) $news_direction_by = $_SESSION['dle_direction_cat_'.$category_id];
 
 				if( !in_array($news_sort_by, array('rating', 'news_read', 'editdate')) ) $extra_join = '';
+				$category_filters = dle_get_category_filters($category_id);
+				$dle_category_filter_enabled = count($category_filters) ? true : false;
+				
+				if( $dle_category_filter_enabled ) {
+					
+					if( $config['allow_alt_url'] ) {
+						$filters_form_action = $url_page . "/";
+					} else {
+						$filters_form_action = $PHP_SELF;
+					}
 
-				$sql_select_ids = "SELECT p.id FROM " . PREFIX . "_post p {$join_category}{$extra_join}WHERE {$where_category}approve=1" . $where_date . " ORDER BY " . $fixed . $news_sort_by . " " . $news_direction_by . " LIMIT " . $cstart . "," . $config['news_number'];
+					$filter_rows_sql = "SELECT p.id, p.xfields FROM " . PREFIX . "_post p {$join_category}{$extra_join}WHERE {$where_category}approve=1" . $where_date . " ORDER BY " . $fixed . $news_sort_by . " " . $news_direction_by;
+					$filter_rows = $db->super_query($filter_rows_sql, true);
+
+					if (is_array($filter_rows) && count($filter_rows)) {
+						foreach ($filter_rows as $k => $frow) {
+							dle_ml_apply_post_xfields_translation($frow);
+							$filter_rows[$k] = $frow;
+						}
+					}
+
+					$filter_context = dle_prepare_category_filters($category_filters, $filter_rows);
+					$dle_category_filters_html = dle_render_category_filters($filter_context, $filters_form_action);
+
+					$filtered_ids = isset($filter_context['matched_ids']) ? $filter_context['matched_ids'] : array();
+					$total_filtered = count($filtered_ids);
+					$page_filtered_ids = array_slice($filtered_ids, $cstart, $config['news_number']);
+					
+					if( count($page_filtered_ids) ) {
+						$ids = implode(',', array_map('intval', $page_filtered_ids));
+						$sql_select_ids = "SELECT p.id FROM " . PREFIX . "_post p WHERE p.id IN ({$ids}) ORDER BY FIELD(p.id, {$ids})";
+					} else {
+						$sql_select_ids = "SELECT p.id FROM " . PREFIX . "_post p WHERE 1=0";
+					}
+
+					$sql_count = "SELECT {$total_filtered} as count";
+				} else {
+					$sql_select_ids = "SELECT p.id FROM " . PREFIX . "_post p {$join_category}{$extra_join}WHERE {$where_category}approve=1" . $where_date . " ORDER BY " . $fixed . $news_sort_by . " " . $news_direction_by . " LIMIT " . $cstart . "," . $config['news_number'];
+				}
 
 				$sql_select = "SELECT p.id, p.autor, p.date, p.short_story, CHAR_LENGTH(p.full_story) as full_story, p.xfields, p.title, p.descr, p.keywords, p.category, p.alt_name, p.comm_num, p.allow_comm, p.allow_main, p.approve, p.fixed, p.symbol, p.tags, e.news_read, e.allow_rate, e.rating, e.vote_num, e.votes, e.view_edit, e.disable_index, e.editdate, e.editor, e.reason {$user_select}FROM " . PREFIX . "_post p LEFT JOIN " . PREFIX . "_post_extras e ON (p.id=e.news_id) {$user_join}";
-				$sql_count = "SELECT COUNT(*) as count FROM " . PREFIX . "_post p {$join_category}WHERE {$where_category}approve=1";
+				if( !$dle_category_filter_enabled ) {
+					$sql_count = "SELECT COUNT(*) as count FROM " . PREFIX . "_post p {$join_category}WHERE {$where_category}approve=1";
+				}
 			}
 			
 		} elseif ($do == 'lastnews') {
@@ -1075,6 +1116,18 @@ switch ( $do ) {
 				if ($year) $cache_prefix .= "year_" . $year;
 				if ($day) $cache_prefix .= "day_" . $day;
 				if ($category) $cache_prefix .= "category_" . $category_id;
+
+				if ($do == "cat" AND count($_GET)) {
+					$filter_params = array();
+					foreach ($_GET as $pname => $pvalue) {
+						if (strpos((string)$pname, 'ff_') === 0) {
+							$filter_params[$pname] = $pvalue;
+						}
+					}
+					if (count($filter_params)) {
+						$cache_prefix .= "_filters_" . md5(json_encode($filter_params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+					}
+				}
 			}
 			
 			$cache_prefix .= "_tempate_" . $config['skin'];

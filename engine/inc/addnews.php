@@ -564,8 +564,12 @@ if( $action == "addnews" ) {
 		<input type="button" onclick="auto_keywords_lang('{$ml_folder_safe}',2); return false;" class="btn bg-primary-600 btn-sm btn-raised" value="{$lang['btn_keyword']}">
 	  </div>
 	 </div>
+	 {ml_xfields_{$ml_code_safe}}
 </div>
 HTML;
+
+		$ml_xfields_html = dle_ml_render_xfields_translation_inputs($ml_folder, array());
+		$ml_panes_html = str_replace("{ml_xfields_{$ml_code_safe}}", $ml_xfields_html, $ml_panes_html);
 	}
 
 echo <<<HTML
@@ -1202,6 +1206,7 @@ elseif( $action == "doaddnews" ) {
 		'metatitle' => stripslashes($metatags['title']),
 		'tags' => $_POST['tags'],
 	));
+	dle_ml_save_post_xfields_translation($id, $ml_main_folder, $filecontents);
 
 	$ml_req_meta_title = isset($_REQUEST['meta_title']) ? $_REQUEST['meta_title'] : '';
 	$ml_req_descr = isset($_REQUEST['descr']) ? $_REQUEST['descr'] : '';
@@ -1241,6 +1246,10 @@ elseif( $action == "doaddnews" ) {
 			'metatitle' => $ml_metatitle,
 			'tags' => $ml_tags,
 		));
+
+		$ml_xfields_posted = isset($ml_item['xfields']) && is_array($ml_item['xfields']) ? $ml_item['xfields'] : array();
+		$ml_xfields_raw = dle_ml_xfields_build_string($ml_xfields_posted, $category_list, '', $parse);
+		dle_ml_save_post_xfields_translation($id, $ml_folder, $ml_xfields_raw);
 	}
 
 	$_REQUEST['meta_title'] = $ml_req_meta_title;

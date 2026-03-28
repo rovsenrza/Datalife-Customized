@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 //System Configurations
 
@@ -26,9 +26,7 @@ $config = array (
 
 'seo_type' => '2',
 
-'translit_url' => '1',
-
-'langs' => 'English',
+'langs' => 'Azerbaijan',
 
 'main_language' => 'Azerbaijan',
 
@@ -88,7 +86,7 @@ $config = array (
 
 'search_pages' => '5',
 
-'search_length_min' => '4',
+'search_length_min' => '1',
 
 'fastsearch_result' => '5',
 
@@ -424,6 +422,8 @@ $config = array (
 
 'seo_control' => '0',
 
+'translit_url' => '0',
+
 'allow_complaint_mail' => '0',
 
 'site_offline' => '0',
@@ -538,7 +538,7 @@ $config = array (
 
 'files_access' => 'private',
 
-'cache_id' => 'cs0t4',
+'cache_id' => 'yprqm',
 
 'sitemap_set_images' => '1',
 

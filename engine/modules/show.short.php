@@ -105,6 +105,7 @@ if( $allow_active_news ) {
 		$attachments[] = $row['id'];
 		$row['date'] = strtotime( $row['date'] );
 		dle_ml_apply_post_translation($row);
+		dle_ml_apply_post_xfields_translation($row);
 
 		if (isset($showed_news_ids) AND is_array($showed_news_ids)) {
 			$showed_news_ids[] = $row['id'];
