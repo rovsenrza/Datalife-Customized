@@ -3203,6 +3203,12 @@ function dle_render_category_filters($context, $form_action) {
 	}
 
 	$items_html = '';
+	$item_template_path = ROOT_DIR . '/templates/' . $GLOBALS['config']['skin'] . '/items.tpl';
+	$default_item_tpl = '<div class="dle-filter-item dle-filter-type-{item_type}"><div class="dle-filter-title">{item_title}</div><div class="dle-filter-control">{item_control}</div></div>';
+	$item_template = file_exists($item_template_path) ? file_get_contents($item_template_path) : $default_item_tpl;
+	if ($item_template === false || $item_template === '') {
+		$item_template = $default_item_tpl;
+	}
 
 	foreach ($filters as $fid => $filter) {
 
@@ -3237,7 +3243,12 @@ function dle_render_category_filters($context, $form_action) {
 			$control = "<input type=\"text\" name=\"{$key}\" value=\"{$value}\" placeholder=\"{$title}\">";
 		}
 
-		$items_html .= "<div class=\"dle-filter-item dle-filter-type-{$type}\"><div class=\"dle-filter-title\">{$title}</div><div class=\"dle-filter-control\">{$control}</div></div>";
+		$item_html = str_replace('{item_id}', htmlspecialchars((string)$fid, ENT_QUOTES, 'UTF-8'), $item_template);
+		$item_html = str_replace('{item_type}', htmlspecialchars((string)$type, ENT_QUOTES, 'UTF-8'), $item_html);
+		$item_html = str_replace('{item_title}', $title, $item_html);
+		$item_html = str_replace('{item_control}', $control, $item_html);
+
+		$items_html .= $item_html;
 	}
 
 	$hidden = '';
