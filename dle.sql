@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Anamakine: localhost:8889
--- Üretim Zamanı: 26 Mar 2026, 11:40:51
+-- Üretim Zamanı: 30 Mar 2026, 07:30:13
 -- Sunucu sürümü: 8.0.44
 -- PHP Sürümü: 8.3.30
 
@@ -63,7 +63,52 @@ INSERT INTO `dle_admin_logs` (`id`, `name`, `date`, `ip`, `action`, `extras`) VA
 (20, 'admin', 1774519818, '::1', 48, ''),
 (21, 'admin', 1774519864, '::1', 38, ''),
 (22, 'admin', 1774519954, '::1', 89, ''),
-(23, 'admin', 1774519961, '::1', 82, '');
+(23, 'admin', 1774519961, '::1', 82, ''),
+(24, 'admin', 1774600408, '::1', 14, 'Masinlar'),
+(25, 'admin', 1774600413, '::1', 14, 'Masinlar'),
+(26, 'admin', 1774600433, '::1', 14, 'Masinlar'),
+(27, 'admin', 1774600468, '::1', 74, 'color'),
+(28, 'admin', 1774600496, '::1', 25, 'masin-1'),
+(29, 'admin', 1774600541, '::1', 25, 'masin-2-ingilisce'),
+(30, 'admin', 1774600574, '::1', 25, 'masin-1 ingilisce'),
+(31, 'admin', 1774600584, '::1', 25, 'masin-2-ingilisce'),
+(32, 'admin', 1774600589, '::1', 25, 'masin-1 ingilisce'),
+(33, 'admin', 1774600615, '::1', 25, 'MASIN-3-INGILISCE'),
+(34, 'admin', 1774600681, '::1', 14, 'Masinlar'),
+(35, 'admin', 1774600687, '::1', 14, 'Masinlar'),
+(36, 'admin', 1774601414, '::1', 74, 'price'),
+(37, 'admin', 1774601419, '::1', 25, 'masin-1 ingilisce'),
+(38, 'admin', 1774601425, '::1', 25, 'masin-2-ingilisce'),
+(39, 'admin', 1774601432, '::1', 25, 'MASIN-3-INGILISCE'),
+(40, 'admin', 1774601547, '::1', 14, 'Cars'),
+(41, 'admin', 1774606939, '::1', 40, ''),
+(42, 'admin', 1774606954, '::1', 59, 'static'),
+(43, 'admin', 1774607373, '::1', 1, 'masin-4'),
+(44, 'admin', 1774607436, '::1', 48, ''),
+(45, 'admin', 1774607474, '::1', 48, ''),
+(46, 'admin', 1774607541, '::1', 48, ''),
+(47, 'admin', 1774607546, '::1', 48, ''),
+(48, 'admin', 1774607602, '::1', 48, ''),
+(49, 'admin', 1774607603, '::1', 48, ''),
+(50, 'admin', 1774607652, '::1', 48, ''),
+(51, 'admin', 1774609988, '::1', 89, ''),
+(52, 'admin', 1774609993, '::1', 82, ''),
+(53, 'admin', 1774610189, '::1', 74, 'size'),
+(54, 'admin', 1774610221, '::1', 25, 'masin-4'),
+(55, 'admin', 1774610499, '::1', 74, 'color'),
+(56, 'admin', 1774610528, '::1', 74, 'color'),
+(57, 'admin', 1774610605, '::1', 14, 'Tools'),
+(58, 'admin', 1774610651, '::1', 74, 'color'),
+(59, 'admin', 1774610755, '::1', 74, 'color'),
+(60, 'admin', 1774610784, '::1', 25, 'masin-4'),
+(61, 'admin', 1774612221, '::1', 25, 'masin-4'),
+(62, 'admin', 1774612847, '::1', 48, ''),
+(63, 'admin', 1774691675, '::1', 40, ''),
+(64, 'admin', 1774691842, '::1', 60, 'haqqimizda'),
+(65, 'admin', 1774691884, '::1', 60, 'haqqimizda'),
+(66, 'admin', 1774691942, '::1', 121, '3'),
+(67, 'admin', 1774691948, '::1', 120, '3'),
+(68, 'admin', 1774692071, '::1', 60, 'haqqimizda');
 
 -- --------------------------------------------------------
 
@@ -205,14 +250,14 @@ CREATE TABLE `dle_category` (
 --
 
 INSERT INTO `dle_category` (`id`, `parentid`, `posi`, `name`, `alt_name`, `icon`, `skin`, `descr`, `keywords`, `news_sort`, `news_msort`, `news_number`, `short_tpl`, `full_tpl`, `metatitle`, `show_sub`, `allow_rss`, `fulldescr`, `disable_search`, `disable_main`, `disable_rating`, `disable_comments`, `enable_dzen`, `enable_turbo`, `active`, `rating_type`, `schema_org`, `disable_index`) VALUES
-(1, 0, 1, 'About DLE', 'o-skripte', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
-(2, 0, 1, 'World', 'v-mire', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
-(3, 0, 1, 'Economy', 'ekonomika', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
-(4, 0, 1, 'Religion', 'religiya', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
-(5, 0, 1, 'Crime', 'kriminal', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
-(6, 0, 1, 'Sport', 'sport', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
-(7, 0, 1, 'Culture', 'kultura', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
-(8, 0, 1, 'Press', 'inopressa', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0);
+(1, 0, 1, 'Cars', 'cars', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 0, -1, '1', 0),
+(2, 0, 1, 'Tools', 'ehtiyat-hisseleri', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 0, -1, '1', 0),
+(3, 0, 1, 'Economy', 'ekonomika', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 0, -1, '1', 0),
+(4, 0, 1, 'Sedan', 'sedan', '', '', '', '', 'date', 'DESC', 10, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
+(5, 0, 1, 'Hecbek', 'xecbek', '', '', '', '', 'date', 'DESC', 10, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
+(6, 0, 1, 'SUV', 'suv', '', '', '', '', 'date', 'DESC', 10, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
+(7, 0, 1, 'Bloq', 'avto-blog', '', '', '', '', 'date', 'DESC', 10, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 1, -1, '1', 0),
+(8, 0, 1, 'Press', 'inopressa', '', '', '', '', '', '', 0, '', '', '', 0, 1, '', 0, 0, 0, 0, 1, 1, 0, -1, '1', 0);
 
 -- --------------------------------------------------------
 
@@ -235,31 +280,31 @@ CREATE TABLE `dle_category_i18n` (
 -- Tablo döküm verisi `dle_category_i18n`
 --
 
-INSERT INTO `dle_category_i18n` (`category_id`, `lang`, `name`, `descr`, `keywords`, `metatitle`, `fulldescr`) VALUES
-(1, 'Azerbaijan', 'About DLE', '', '', '', ''),
-(1, 'English', 'About DLE', '', '', '', ''),
-(1, 'Russian', 'About DLE', '', '', '', ''),
-(2, 'Azerbaijan', 'World', '', '', '', ''),
-(2, 'English', 'World', '', '', '', ''),
-(2, 'Russian', 'World', '', '', '', ''),
-(3, 'Azerbaijan', 'Economy', '', '', '', ''),
-(3, 'English', 'Economy', '', '', '', ''),
-(3, 'Russian', 'Economy', '', '', '', ''),
-(4, 'Azerbaijan', 'Religion', '', '', '', ''),
-(4, 'English', 'Religion', '', '', '', ''),
-(4, 'Russian', 'Religion', '', '', '', ''),
-(5, 'Azerbaijan', 'Crime', '', '', '', ''),
-(5, 'English', 'Crime', '', '', '', ''),
-(5, 'Russian', 'Crime', '', '', '', ''),
-(6, 'Azerbaijan', 'Sport', '', '', '', ''),
-(6, 'English', 'Sport', '', '', '', ''),
-(6, 'Russian', 'Sport', '', '', '', ''),
-(7, 'Azerbaijan', 'Culture', '', '', '', ''),
-(7, 'English', 'Culture', '', '', '', ''),
-(7, 'Russian', 'Culture', '', '', '', ''),
-(8, 'Azerbaijan', 'Press', '', '', '', ''),
-(8, 'English', 'Press', '', '', '', ''),
-(8, 'Russian', 'Press', '', '', '', '');
+INSERT INTO `dle_category_i18n` (`category_id`, `lang`, `name`, `alt_name`, `descr`, `keywords`, `metatitle`, `fulldescr`) VALUES
+(1, 'Azerbaijan', 'Masinlar', 'masinlar', '', '', '', ''),
+(1, 'English', 'Cars', 'cars', '', '', '', ''),
+(1, 'Russian', 'Masini', 'masini', '', '', '', ''),
+(2, 'Azerbaijan', 'Ehtiyat hisseleri', 'ehtiyat-hisseleri', '', '', '', ''),
+(2, 'English', 'Tools', 'tools', '', '', '', ''),
+(2, 'Russian', 'Zapcasti', 'zapcasti', '', '', '', ''),
+(3, 'Azerbaijan', 'Economy', '', '', '', '', ''),
+(3, 'English', 'Economy', '', '', '', '', ''),
+(3, 'Russian', 'Economy', '', '', '', '', ''),
+(4, 'Azerbaijan', 'Sedan', 'sedan', '', '', '', ''),
+(4, 'English', 'Sedan', 'sedan', '', '', '', ''),
+(4, 'Russian', 'Sedan', 'sedan', '', '', '', ''),
+(5, 'Azerbaijan', 'Hecbek', 'xecbek', '', '', '', ''),
+(5, 'English', 'Hatchback', 'xecbek', '', '', '', ''),
+(5, 'Russian', 'Hetchbek', 'xecbek', '', '', '', ''),
+(6, 'Azerbaijan', 'SUV', 'suv', '', '', '', ''),
+(6, 'English', 'SUV', 'suv', '', '', '', ''),
+(6, 'Russian', 'SUV', 'suv', '', '', '', ''),
+(7, 'Azerbaijan', 'Bloq', 'avto-blog', '', '', '', ''),
+(7, 'English', 'Blog', 'avto-blog', '', '', '', ''),
+(7, 'Russian', 'Blog', 'avto-blog', '', '', '', ''),
+(8, 'Azerbaijan', 'Press', '', '', '', '', ''),
+(8, 'English', 'Press', '', '', '', '', ''),
+(8, 'Russian', 'Press', '', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -725,9 +770,22 @@ CREATE TABLE `dle_post` (
 --
 
 INSERT INTO `dle_post` (`id`, `autor`, `date`, `short_story`, `full_story`, `xfields`, `title`, `descr`, `keywords`, `category`, `alt_name`, `comm_num`, `allow_comm`, `allow_main`, `approve`, `fixed`, `allow_br`, `symbol`, `tags`, `metatitle`) VALUES
-(1, 'admin', '2026-02-19 10:24:57', '', '', '', 'Welcome', '', '', '1', 'post1', 0, 1, 1, 1, 0, 0, '', 'по, новости', ''),
-(2, 'admin', '2026-02-19 10:24:37', 'Dear webmaster, we would like to add something. Before asking our technical support any questions, make sure that you carefully read the documentation on script and did not find the needed answer. We reserve the right to ignore questions received by us from users using a non-commercial version of the script or users who did not pay for the license that includes the technical support service. You can purchase one of two types of DataLife Engine license of your choice:<br><br>- <b>Basic license.</b> When you purchase this license, you also get the opportunity to receive new versions of script for free within <b>one year</b>.<br><br>- <b>Advanced license.</b> When you purchase this license you get everything that is included in the basic license and additionally you get technical support of the script and you are allowed to remove copyrights from the user part of the website (that is visible to visitors).<br><br><b>Validity of the license</b> is <span style=\"color:#FF0000\">1 year</span>, during which you will receive all the new versions and updates of the script for free, and if you purchase the advanced license you\'ll get the technical support. After expiration of the license, you can extend it, or use the current version of the script without updates.<br><br><b>Here you can read how to purchase the script</b> <a href=\"https://dle-news.com/price.html\" target=\"_blank\">https://dle-news.com/price.html</a><br><br>Note that one license can be used for one domain (project) and it can not be used on other websites. It is also prohibited to give your license file to others.<br><br><b>Sincerely,<br><br>SoftNews Media Group</b>', '', '', 'Script purchase and payment', '', '', '1', 'post2', 0, 1, 1, 1, 0, 1, '', 'по, новости', ''),
-(3, 'admin', '2026-02-19 10:24:07', '<b>Technical support is </b> provided by the <a href=\"https://forum.dle-news.ru/index.php\" target=\"_blank\">support forum</a> and via E-Mail. We try to answer all your questions, but due to the large number of visitors, it is not always possible. Therefore, guaranteed technical support is available only to users who have purchased the extended license. <br><br><b>Technical support service includes:</b><br><br>1. Users who faced with the script for the first time and of course do not know all the nuances of its work have the priority of answering the questions. Only failures of the script itself are the responsibility of technical support. If the reason of failure is your template that doesn\'t meet the requirements of the engine, then the support you may be denied.<br><br>2. Also you get a one-time opportunity to install the script on your server, including setting it up to full operation with current server settings (sometimes it is needed to correctly disable the User-Friendly URL, enable the specific features of Russian Apache for the correct images uploading, etc...).<br><br>3. You receive a consultancy support on working with the structure of the script. For example, if you want to make small changes to the script for more convenient work for you, you can save time on finding the correct piece of code by just asking us. You will be given an advice where to find it and how to implement your task better. (Note that we do not write additional modules for you, but only help you to understand the structure of the script better, so always ask related questions. Questions like: \"How to make this stuff\" may be ignored by customer support)<br><br>4. Another common problem is incorrect updating of the script. For example the server has failed during the update, where part of the new data was entered into the database and configurations, and the other part was not entered. As a result, you get a non-working script with all the consequences. In this case, you will be held manual correction of the damaged database structure.<br><br>If you are not subscribed to additional support services, your questions can be ignored and unanswered.<br><br><b>Sincerely,<br><br>SoftNews Media Group</b>', '', '', 'Technical support of the engine', '', '', '1', 'post4', 0, 1, 1, 1, 0, 1, '', '', '');
+(1, 'admin', '2026-03-20 10:01:00', '<p>Sedan A1 qisa tesvir.</p>', '<p>Sedan A1 tam tesvir. Rahat salon, az yanacaq serfiyyati, aile ucun ideal secim.</p>', 'color|black||price|24500||product_type|premium||fuel|petrol', 'Sedan A1', 'Sedan A1', '', '4', 'sedan-a1', 0, 1, 1, 1, 0, 1, '', 'sedan,premium,petrol', 'Sedan A1'),
+(2, 'admin', '2026-03-20 10:02:00', '<p>Sedan B2 qisa tesvir.</p>', '<p>Sedan B2 tam tesvir. Dizel muharik, uzun yol ucun sabit surus.</p>', 'color|red||price|21900||product_type|comfort||fuel|diesel', 'Sedan B2', 'Sedan B2', '', '4', 'sedan-b2', 0, 1, 1, 1, 0, 1, '', 'sedan,comfort,diesel', 'Sedan B2'),
+(3, 'admin', '2026-03-20 10:03:00', '<p>Sedan C3 qisa tesvir.</p>', '<p>Sedan C3 tam tesvir. Hibrid texnologiya ile serfiyyata qenaet.</p>', 'color|blue||price|27100||product_type|economy||fuel|hybrid', 'Sedan C3', 'Sedan C3', '', '4', 'sedan-c3', 0, 1, 1, 1, 0, 1, '', 'sedan,economy,hybrid', 'Sedan C3'),
+(4, 'admin', '2026-03-20 10:04:00', '<p>Sedan D4 qisa tesvir.</p>', '<p>Sedan D4 tam tesvir. Premium komplektasiya ve guclu tehlukesizlik paketi.</p>', 'color|black||price|29900||product_type|premium||fuel|petrol', 'Sedan D4', 'Sedan D4', 'masin4ingilisce', '4', 'sedan-d4', 0, 1, 1, 1, 0, 0, '', 'sedan,premium,petrol', 'Sedan D4'),
+(5, 'admin', '2026-03-20 10:05:00', '<p>Hecbek H1 qisa tesvir.</p>', '<p>Hecbek H1 seher ucun cevik idareetme ve kompakt olculer teklif edir.</p>', 'color|red||price|17300||product_type|economy||fuel|petrol', 'Hecbek H1', 'Hecbek H1', '', '5', 'hecbek-h1', 0, 1, 1, 1, 0, 1, '', 'hatchback,economy,petrol', 'Hecbek H1'),
+(6, 'admin', '2026-03-20 10:06:00', '<p>Hecbek H2 qisa tesvir.</p>', '<p>Hecbek H2 dizel varianti ile uzun muddetli istifade ucun uyqundur.</p>', 'color|black||price|18900||product_type|comfort||fuel|diesel', 'Hecbek H2', 'Hecbek H2', '', '5', 'hecbek-h2', 0, 1, 1, 1, 0, 1, '', 'hatchback,comfort,diesel', 'Hecbek H2'),
+(7, 'admin', '2026-03-20 10:07:00', '<p>Hecbek H3 qisa tesvir.</p>', '<p>Hecbek H3 hibrid sistemi ile seherde serfiyyati minimuma endirir.</p>', 'color|blue||price|20100||product_type|comfort||fuel|hybrid', 'Hecbek H3', 'Hecbek H3', '', '5', 'hecbek-h3', 0, 1, 1, 1, 0, 1, '', 'hatchback,comfort,hybrid', 'Hecbek H3'),
+(8, 'admin', '2026-03-20 10:08:00', '<p>Hecbek H4 qisa tesvir.</p>', '<p>Hecbek H4 elektrik guc qurqusu ile sessiz ve dinamik hereket tecrubesi verir.</p>', 'color|black||price|23800||product_type|premium||fuel|electric', 'Hecbek H4', 'Hecbek H4', '', '5', 'hecbek-h4', 0, 1, 1, 1, 0, 1, '', 'hatchback,premium,electric', 'Hecbek H4'),
+(9, 'admin', '2026-03-20 10:09:00', '<p>SUV S1 qisa tesvir.</p>', '<p>SUV S1 tam cekis sistemi ile seher ve trasda sabitlik teqdim edir.</p>', 'color|black||price|33200||product_type|premium||fuel|diesel', 'SUV S1', 'SUV S1', '', '6', 'suv-s1', 0, 1, 1, 1, 0, 1, '', 'suv,premium,diesel', 'SUV S1'),
+(10, 'admin', '2026-03-20 10:10:00', '<p>SUV S2 qisa tesvir.</p>', '<p>SUV S2 ailevi istifade ucun genis baqaj ve rahat salon sunur.</p>', 'color|red||price|30500||product_type|comfort||fuel|petrol', 'SUV S2', 'SUV S2', '', '6', 'suv-s2', 0, 1, 1, 1, 0, 1, '', 'suv,comfort,petrol', 'SUV S2'),
+(11, 'admin', '2026-03-20 10:11:00', '<p>SUV S3 qisa tesvir.</p>', '<p>SUV S3 hibrid versiya olaraq guc ve iqtisadiyyati balanslayir.</p>', 'color|blue||price|34700||product_type|premium||fuel|hybrid', 'SUV S3', 'SUV S3', '', '6', 'suv-s3', 0, 1, 1, 1, 0, 1, '', 'suv,premium,hybrid', 'SUV S3'),
+(12, 'admin', '2026-03-20 10:12:00', '<p>SUV S4 qisa tesvir.</p>', '<p>SUV S4 elektrik platformasi ile ekoloji ve yuksek texnologiyali secimdir.</p>', 'color|black||price|38900||product_type|premium||fuel|electric', 'SUV S4', 'SUV S4', '', '6', 'suv-s4', 0, 1, 1, 1, 0, 1, '', 'suv,premium,electric', 'SUV S4'),
+(13, 'admin', '2026-03-20 10:13:00', '<p>Yaz tekeri secerken diqqet edilmeli meqamlar.</p>', '<p>Bu meqalede olcu secimi, indeksler ve istifade senarilerine gore qisa baxis verilir.</p>', '', 'Yaz tekeri secimi uzre qisa rehber', 'Yaz tekeri secimi uzre qisa rehber', '', '7', 'blog-yaz-tekeri', 0, 1, 1, 1, 0, 1, '', 'blog,teker,servis', 'Yaz tekeri rehberi'),
+(14, 'admin', '2026-03-20 10:14:00', '<p>Hibrid ve elektrik avtomobillerin ferqi.</p>', '<p>Hibrid ve tam elektrik platformalarin ustunlukleri ve istifade xercleri muqayise olunur.</p>', '', 'Hibrid vs elektrik', 'Hibrid vs elektrik', '', '7', 'blog-hibrid-vs-elektrik', 0, 1, 1, 1, 0, 1, '', 'blog,hibrid,elektrik', 'Hibrid vs elektrik'),
+(15, 'admin', '2026-03-20 10:15:00', '<p>Seher ucun sedan yoxsa hecbek?</p>', '<p>Park, manevr, bagaj ve yanacaq meyarlarina gore praktik secim meqalasi.</p>', '', 'Seher ucun sedan yoxsa hecbek', 'Seher ucun sedan yoxsa hecbek', '', '7', 'blog-seher-ucun-sedan-hecbek', 0, 1, 1, 1, 0, 1, '', 'blog,sedan,hecbek', 'Sedan yoxsa hecbek'),
+(16, 'admin', '2026-03-20 10:16:00', '<p>SUV alarken baxilmali 5 esas parametr.</p>', '<p>Kuzov olcusu, cekis sistemi, guvenlik paketleri ve servis xercleri izah edilir.</p>', '', 'SUV alarken 5 parametr', 'SUV alarken 5 parametr', '', '7', 'blog-suv-alarken-5-parametr', 0, 1, 1, 1, 0, 1, '', 'blog,suv,guide', 'SUV alarken 5 parametr');
 
 -- --------------------------------------------------------
 
@@ -766,9 +824,22 @@ CREATE TABLE `dle_post_extras` (
 --
 
 INSERT INTO `dle_post_extras` (`eid`, `news_id`, `news_read`, `allow_rate`, `rating`, `vote_num`, `votes`, `view_edit`, `disable_index`, `related_ids`, `access`, `editdate`, `editor`, `reason`, `user_id`, `disable_search`, `need_pass`, `allow_rss`, `allow_rss_turbo`, `allow_rss_dzen`, `edited_now`, `allowed_country`, `not_allowed_country`) VALUES
-(1, 1, 21, 1, 0, 0, 0, 0, 0, '2,3', '', 1774436291, 'admin', '', 1, 0, 0, 1, 1, 1, '{\"name\":\"admin\",\"time\":1774519943}', '', ''),
-(2, 2, 0, 1, 0, 0, 0, 0, 0, '3,1', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
-(3, 3, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', '');
+(5, 1, 1, 1, 0, 0, 0, 0, 0, '15,10,7,2,3', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(6, 2, 2, 1, 0, 0, 0, 0, 0, '6,15,1,3,4', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(7, 3, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(8, 4, 2, 1, 0, 0, 0, 0, 0, '1,2,3', '', 1774612221, 'admin', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(9, 5, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(10, 6, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(11, 7, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(12, 8, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(13, 9, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(14, 10, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(15, 11, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(16, 12, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(17, 13, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(18, 14, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(19, 15, 2, 1, 0, 0, 0, 0, 0, '1,5,6,13,7', '', 0, '', '', 1, 0, 0, 1, 1, 1, '', '', ''),
+(20, 16, 0, 1, 0, 0, 0, 0, 0, '', '', 0, '', '', 1, 0, 0, 1, 1, 1, '{\"name\":\"admin\",\"time\":1774693877}', '', '');
 
 -- --------------------------------------------------------
 
@@ -787,9 +858,22 @@ CREATE TABLE `dle_post_extras_cats` (
 --
 
 INSERT INTO `dle_post_extras_cats` (`id`, `news_id`, `cat_id`) VALUES
-(1, 1, 1),
-(2, 2, 1),
-(3, 3, 1);
+(7, 1, 4),
+(8, 2, 4),
+(9, 3, 4),
+(10, 5, 5),
+(11, 6, 5),
+(12, 7, 5),
+(13, 8, 5),
+(14, 9, 6),
+(15, 10, 6),
+(16, 11, 6),
+(17, 12, 6),
+(18, 13, 7),
+(19, 14, 7),
+(20, 15, 7),
+(21, 16, 7),
+(37, 4, 4);
 
 -- --------------------------------------------------------
 
@@ -815,15 +899,54 @@ CREATE TABLE `dle_post_i18n` (
 --
 
 INSERT INTO `dle_post_i18n` (`news_id`, `lang`, `title`, `alt_name`, `short_story`, `full_story`, `descr`, `keywords`, `metatitle`, `tags`) VALUES
-(1, 'Azerbaijan', 'Welcome', 'welcome', '', '', '', '', '', 'по, новости'),
-(1, 'English', 'Welcome', 'post1', '<div style=\"text-align:center;\"><img src=\"http://test.digitale.az/uploads/boxsmall.jpg\" alt=\"\" /></div>Welcome to the demo page of DataLife Engine. DataLife Engine is a multi-user news engine with a high functionality. First of all, the engine is designed to create news blogs and websites with a large information context. However, it has a lot of settings that allow you to use it for any purpose. The engine can be integrated into almost any existing design and it has no limatations for making new templates for it. Another key feature of DataLife Engine - is a low load on system resources. Server load will be minimal even when many users will be online, and you will not experience any problems with the information displaying. The engine is optimized for search engines. You can read about all the functional features on <a href=\"https://dle-news.com/\" target=\"_blank\">our page</a>.<br><br>Discussion of all issues on the script is conducted <a href=\"https://forum.dle-news.ru/index.php\" target=\"_blank\">here</a>. Also, you can get prompt assistance there.', '', '', '', '', 'по, новости'),
-(1, 'Russian', 'Welcome', 'post1', '<div style=\"text-align:center;\"><img src=\"http://test.digitale.az/uploads/boxsmall.jpg\" alt=\"\" /></div>Welcome to the demo page of DataLife Engine. DataLife Engine is a multi-user news engine with a high functionality. First of all, the engine is designed to create news blogs and websites with a large information context. However, it has a lot of settings that allow you to use it for any purpose. The engine can be integrated into almost any existing design and it has no limatations for making new templates for it. Another key feature of DataLife Engine - is a low load on system resources. Server load will be minimal even when many users will be online, and you will not experience any problems with the information displaying. The engine is optimized for search engines. You can read about all the functional features on <a href=\"https://dle-news.com/\" target=\"_blank\">our page</a>.<br><br>Discussion of all issues on the script is conducted <a href=\"https://forum.dle-news.ru/index.php\" target=\"_blank\">here</a>. Also, you can get prompt assistance there.', '', '', '', '', 'по, новости'),
-(2, 'Azerbaijan', 'Script purchase and payment', 'post2', 'Dear webmaster, we would like to add something. Before asking our technical support any questions, make sure that you carefully read the documentation on script and did not find the needed answer. We reserve the right to ignore questions received by us from users using a non-commercial version of the script or users who did not pay for the license that includes the technical support service. You can purchase one of two types of DataLife Engine license of your choice:<br><br>- <b>Basic license.</b> When you purchase this license, you also get the opportunity to receive new versions of script for free within <b>one year</b>.<br><br>- <b>Advanced license.</b> When you purchase this license you get everything that is included in the basic license and additionally you get technical support of the script and you are allowed to remove copyrights from the user part of the website (that is visible to visitors).<br><br><b>Validity of the license</b> is <span style=\"color:#FF0000\">1 year</span>, during which you will receive all the new versions and updates of the script for free, and if you purchase the advanced license you\'ll get the technical support. After expiration of the license, you can extend it, or use the current version of the script without updates.<br><br><b>Here you can read how to purchase the script</b> <a href=\"https://dle-news.com/price.html\" target=\"_blank\">https://dle-news.com/price.html</a><br><br>Note that one license can be used for one domain (project) and it can not be used on other websites. It is also prohibited to give your license file to others.<br><br><b>Sincerely,<br><br>SoftNews Media Group</b>', '', '', '', '', 'по, новости'),
-(2, 'English', 'Script purchase and payment', 'post2', 'Dear webmaster, we would like to add something. Before asking our technical support any questions, make sure that you carefully read the documentation on script and did not find the needed answer. We reserve the right to ignore questions received by us from users using a non-commercial version of the script or users who did not pay for the license that includes the technical support service. You can purchase one of two types of DataLife Engine license of your choice:<br><br>- <b>Basic license.</b> When you purchase this license, you also get the opportunity to receive new versions of script for free within <b>one year</b>.<br><br>- <b>Advanced license.</b> When you purchase this license you get everything that is included in the basic license and additionally you get technical support of the script and you are allowed to remove copyrights from the user part of the website (that is visible to visitors).<br><br><b>Validity of the license</b> is <span style=\"color:#FF0000\">1 year</span>, during which you will receive all the new versions and updates of the script for free, and if you purchase the advanced license you\'ll get the technical support. After expiration of the license, you can extend it, or use the current version of the script without updates.<br><br><b>Here you can read how to purchase the script</b> <a href=\"https://dle-news.com/price.html\" target=\"_blank\">https://dle-news.com/price.html</a><br><br>Note that one license can be used for one domain (project) and it can not be used on other websites. It is also prohibited to give your license file to others.<br><br><b>Sincerely,<br><br>SoftNews Media Group</b>', '', '', '', '', 'по, новости'),
-(2, 'Russian', 'Script purchase and payment', 'post2', 'Dear webmaster, we would like to add something. Before asking our technical support any questions, make sure that you carefully read the documentation on script and did not find the needed answer. We reserve the right to ignore questions received by us from users using a non-commercial version of the script or users who did not pay for the license that includes the technical support service. You can purchase one of two types of DataLife Engine license of your choice:<br><br>- <b>Basic license.</b> When you purchase this license, you also get the opportunity to receive new versions of script for free within <b>one year</b>.<br><br>- <b>Advanced license.</b> When you purchase this license you get everything that is included in the basic license and additionally you get technical support of the script and you are allowed to remove copyrights from the user part of the website (that is visible to visitors).<br><br><b>Validity of the license</b> is <span style=\"color:#FF0000\">1 year</span>, during which you will receive all the new versions and updates of the script for free, and if you purchase the advanced license you\'ll get the technical support. After expiration of the license, you can extend it, or use the current version of the script without updates.<br><br><b>Here you can read how to purchase the script</b> <a href=\"https://dle-news.com/price.html\" target=\"_blank\">https://dle-news.com/price.html</a><br><br>Note that one license can be used for one domain (project) and it can not be used on other websites. It is also prohibited to give your license file to others.<br><br><b>Sincerely,<br><br>SoftNews Media Group</b>', '', '', '', '', 'по, новости'),
-(3, 'Azerbaijan', 'Technical support of the engine', 'post4', '<b>Technical support is </b> provided by the <a href=\"https://forum.dle-news.ru/index.php\" target=\"_blank\">support forum</a> and via E-Mail. We try to answer all your questions, but due to the large number of visitors, it is not always possible. Therefore, guaranteed technical support is available only to users who have purchased the extended license. <br><br><b>Technical support service includes:</b><br><br>1. Users who faced with the script for the first time and of course do not know all the nuances of its work have the priority of answering the questions. Only failures of the script itself are the responsibility of technical support. If the reason of failure is your template that doesn\'t meet the requirements of the engine, then the support you may be denied.<br><br>2. Also you get a one-time opportunity to install the script on your server, including setting it up to full operation with current server settings (sometimes it is needed to correctly disable the User-Friendly URL, enable the specific features of Russian Apache for the correct images uploading, etc...).<br><br>3. You receive a consultancy support on working with the structure of the script. For example, if you want to make small changes to the script for more convenient work for you, you can save time on finding the correct piece of code by just asking us. You will be given an advice where to find it and how to implement your task better. (Note that we do not write additional modules for you, but only help you to understand the structure of the script better, so always ask related questions. Questions like: \"How to make this stuff\" may be ignored by customer support)<br><br>4. Another common problem is incorrect updating of the script. For example the server has failed during the update, where part of the new data was entered into the database and configurations, and the other part was not entered. As a result, you get a non-working script with all the consequences. In this case, you will be held manual correction of the damaged database structure.<br><br>If you are not subscribed to additional support services, your questions can be ignored and unanswered.<br><br><b>Sincerely,<br><br>SoftNews Media Group</b>', '', '', '', '', ''),
-(3, 'English', 'Technical support of the engine', 'post4', '<b>Technical support is </b> provided by the <a href=\"https://forum.dle-news.ru/index.php\" target=\"_blank\">support forum</a> and via E-Mail. We try to answer all your questions, but due to the large number of visitors, it is not always possible. Therefore, guaranteed technical support is available only to users who have purchased the extended license. <br><br><b>Technical support service includes:</b><br><br>1. Users who faced with the script for the first time and of course do not know all the nuances of its work have the priority of answering the questions. Only failures of the script itself are the responsibility of technical support. If the reason of failure is your template that doesn\'t meet the requirements of the engine, then the support you may be denied.<br><br>2. Also you get a one-time opportunity to install the script on your server, including setting it up to full operation with current server settings (sometimes it is needed to correctly disable the User-Friendly URL, enable the specific features of Russian Apache for the correct images uploading, etc...).<br><br>3. You receive a consultancy support on working with the structure of the script. For example, if you want to make small changes to the script for more convenient work for you, you can save time on finding the correct piece of code by just asking us. You will be given an advice where to find it and how to implement your task better. (Note that we do not write additional modules for you, but only help you to understand the structure of the script better, so always ask related questions. Questions like: \"How to make this stuff\" may be ignored by customer support)<br><br>4. Another common problem is incorrect updating of the script. For example the server has failed during the update, where part of the new data was entered into the database and configurations, and the other part was not entered. As a result, you get a non-working script with all the consequences. In this case, you will be held manual correction of the damaged database structure.<br><br>If you are not subscribed to additional support services, your questions can be ignored and unanswered.<br><br><b>Sincerely,<br><br>SoftNews Media Group</b>', '', '', '', '', ''),
-(3, 'Russian', 'Technical support of the engine', 'post4', '<b>Technical support is </b> provided by the <a href=\"https://forum.dle-news.ru/index.php\" target=\"_blank\">support forum</a> and via E-Mail. We try to answer all your questions, but due to the large number of visitors, it is not always possible. Therefore, guaranteed technical support is available only to users who have purchased the extended license. <br><br><b>Technical support service includes:</b><br><br>1. Users who faced with the script for the first time and of course do not know all the nuances of its work have the priority of answering the questions. Only failures of the script itself are the responsibility of technical support. If the reason of failure is your template that doesn\'t meet the requirements of the engine, then the support you may be denied.<br><br>2. Also you get a one-time opportunity to install the script on your server, including setting it up to full operation with current server settings (sometimes it is needed to correctly disable the User-Friendly URL, enable the specific features of Russian Apache for the correct images uploading, etc...).<br><br>3. You receive a consultancy support on working with the structure of the script. For example, if you want to make small changes to the script for more convenient work for you, you can save time on finding the correct piece of code by just asking us. You will be given an advice where to find it and how to implement your task better. (Note that we do not write additional modules for you, but only help you to understand the structure of the script better, so always ask related questions. Questions like: \"How to make this stuff\" may be ignored by customer support)<br><br>4. Another common problem is incorrect updating of the script. For example the server has failed during the update, where part of the new data was entered into the database and configurations, and the other part was not entered. As a result, you get a non-working script with all the consequences. In this case, you will be held manual correction of the damaged database structure.<br><br>If you are not subscribed to additional support services, your questions can be ignored and unanswered.<br><br><b>Sincerely,<br><br>SoftNews Media Group</b>', '', '', '', '', '');
+(1, 'Azerbaijan', 'Sedan A1', 'sedan-a1', '<p>Sedan A1 qisa tesvir.</p>', '<p>Sedan A1 tam tesvir. Rahat salon, az yanacaq serfiyyati, aile ucun ideal secim.</p>', '', '', 'Sedan A1', 'sedan,premium,petrol'),
+(1, 'English', 'Sedan A1', 'sedan-a1', '<p>Short overview of Sedan A1.</p>', '<p>Full overview of Sedan A1. Comfortable cabin, low fuel consumption and family-friendly setup.</p>', '', '', 'Sedan A1', 'sedan,premium,petrol'),
+(1, 'Russian', 'Sedan A1', 'sedan-a1', '<p>Kratkoe opisanie Sedan A1.</p>', '<p>Podrobnoe opisanie Sedan A1. Udobniy salon, nizkiy rashod i praktichniy format dlya semyi.</p>', '', '', 'Sedan A1', 'sedan,premium,petrol'),
+(2, 'Azerbaijan', 'Sedan B2', 'sedan-b2', '<p>Sedan B2 qisa tesvir.</p>', '<p>Sedan B2 tam tesvir. Dizel muharik, uzun yol ucun sabit surus.</p>', '', '', 'Sedan B2', 'sedan,comfort,diesel'),
+(2, 'English', 'Sedan B2', 'sedan-b2', '<p>Short overview of Sedan B2.</p>', '<p>Full overview of Sedan B2. Diesel engine and stable highway ride.</p>', '', '', 'Sedan B2', 'sedan,comfort,diesel'),
+(2, 'Russian', 'Sedan B2', 'sedan-b2', '<p>Kratkoe opisanie Sedan B2.</p>', '<p>Podrobnoe opisanie Sedan B2. Dizelniy dvigatel i stabilnaya ezda na trasse.</p>', '', '', 'Sedan B2', 'sedan,comfort,diesel'),
+(3, 'Azerbaijan', 'Sedan C3', 'sedan-c3', '<p>Sedan C3 qisa tesvir.</p>', '<p>Sedan C3 tam tesvir. Hibrid texnologiya ile serfiyyata qenaet.</p>', '', '', 'Sedan C3', 'sedan,economy,hybrid'),
+(3, 'English', 'Sedan C3', 'sedan-c3', '<p>Short overview of Sedan C3.</p>', '<p>Full overview of Sedan C3. Hybrid technology focused on fuel economy.</p>', '', '', 'Sedan C3', 'sedan,economy,hybrid'),
+(3, 'Russian', 'Sedan C3', 'sedan-c3', '<p>Kratkoe opisanie Sedan C3.</p>', '<p>Podrobnoe opisanie Sedan C3. Gibridnaya sistema dlya ekonomii topliva.</p>', '', '', 'Sedan C3', 'sedan,economy,hybrid'),
+(4, 'Azerbaijan', 'Sedan D4', 'sedan-d4', '<p>Sedan D4 qisa tesvir.</p>', '<p>Sedan D4 tam tesvir. Premium komplektasiya ve guclu tehlukesizlik paketi.</p>', '', '', 'Sedan D4', 'sedan,premium,petrol'),
+(4, 'English', 'Sedan D4', 'sedan-d4', '<p>Short overview of Sedan D4.</p>', '<p>Full overview of Sedan D4. Premium package and advanced safety systems.</p>', '', '', 'Sedan D4', 'sedan,premium,petrol'),
+(4, 'Russian', 'Sedan D4', 'sedan-d4', '<p>Kratkoe opisanie Sedan D4.</p>', '<p>Podrobnoe opisanie Sedan D4. Premium-komplektaciya i usilennaya bezopasnost.</p>', '', '', 'Sedan D4', 'sedan,premium,petrol'),
+(5, 'Azerbaijan', 'Hecbek H1', 'hecbek-h1', '<p>Hecbek H1 qisa tesvir.</p>', '<p>Hecbek H1 seher ucun cevik idareetme ve kompakt olculer teklif edir.</p>', '', '', 'Hecbek H1', 'hatchback,economy,petrol'),
+(5, 'English', 'Hatchback H1', 'hecbek-h1', '<p>Short overview of Hatchback H1.</p>', '<p>Hatchback H1 offers agile city handling and compact dimensions.</p>', '', '', 'Hatchback H1', 'hatchback,economy,petrol'),
+(5, 'Russian', 'Hetchbek H1', 'hecbek-h1', '<p>Kratkoe opisanie Hetchbek H1.</p>', '<p>Hetchbek H1 podhodit dlya goroda: manevrennost i kompaktnie razmeri.</p>', '', '', 'Hetchbek H1', 'hatchback,economy,petrol'),
+(6, 'Azerbaijan', 'Hecbek H2', 'hecbek-h2', '<p>Hecbek H2 qisa tesvir.</p>', '<p>Hecbek H2 dizel varianti ile uzun muddetli istifade ucun uyqundur.</p>', '', '', 'Hecbek H2', 'hatchback,comfort,diesel'),
+(6, 'English', 'Hatchback H2', 'hecbek-h2', '<p>Short overview of Hatchback H2.</p>', '<p>Hatchback H2 with diesel setup is suitable for long-term usage.</p>', '', '', 'Hatchback H2', 'hatchback,comfort,diesel'),
+(6, 'Russian', 'Hetchbek H2', 'hecbek-h2', '<p>Kratkoe opisanie Hetchbek H2.</p>', '<p>Hetchbek H2 s dizelnim dvigatelem podhodit dlya dlitelnoy ekspluatacii.</p>', '', '', 'Hetchbek H2', 'hatchback,comfort,diesel'),
+(7, 'Azerbaijan', 'Hecbek H3', 'hecbek-h3', '<p>Hecbek H3 qisa tesvir.</p>', '<p>Hecbek H3 hibrid sistemi ile seherde serfiyyati minimuma endirir.</p>', '', '', 'Hecbek H3', 'hatchback,comfort,hybrid'),
+(7, 'English', 'Hatchback H3', 'hecbek-h3', '<p>Short overview of Hatchback H3.</p>', '<p>Hatchback H3 uses a hybrid system to reduce city consumption.</p>', '', '', 'Hatchback H3', 'hatchback,comfort,hybrid'),
+(7, 'Russian', 'Hetchbek H3', 'hecbek-h3', '<p>Kratkoe opisanie Hetchbek H3.</p>', '<p>Hetchbek H3 s gibridnoy sistemoy umenshaet rashod v gorodskom rejime.</p>', '', '', 'Hetchbek H3', 'hatchback,comfort,hybrid'),
+(8, 'Azerbaijan', 'Hecbek H4', 'hecbek-h4', '<p>Hecbek H4 qisa tesvir.</p>', '<p>Hecbek H4 elektrik guc qurqusu ile sessiz ve dinamik hereket tecrubesi verir.</p>', '', '', 'Hecbek H4', 'hatchback,premium,electric'),
+(8, 'English', 'Hatchback H4', 'hecbek-h4', '<p>Short overview of Hatchback H4.</p>', '<p>Hatchback H4 provides silent and dynamic movement with an electric drivetrain.</p>', '', '', 'Hatchback H4', 'hatchback,premium,electric'),
+(8, 'Russian', 'Hetchbek H4', 'hecbek-h4', '<p>Kratkoe opisanie Hetchbek H4.</p>', '<p>Hetchbek H4 obespechivaet tihiy i dinamichniy hod blagodarya elektroustanovke.</p>', '', '', 'Hetchbek H4', 'hatchback,premium,electric'),
+(9, 'Azerbaijan', 'SUV S1', 'suv-s1', '<p>SUV S1 qisa tesvir.</p>', '<p>SUV S1 tam cekis sistemi ile seher ve trasda sabitlik teqdim edir.</p>', '', '', 'SUV S1', 'suv,premium,diesel'),
+(9, 'English', 'SUV S1', 'suv-s1', '<p>Short overview of SUV S1.</p>', '<p>SUV S1 provides stability in city and highway modes with all-wheel traction.</p>', '', '', 'SUV S1', 'suv,premium,diesel'),
+(9, 'Russian', 'SUV S1', 'suv-s1', '<p>Kratkoe opisanie SUV S1.</p>', '<p>SUV S1 obespechivaet stabilnost v gorode i na trasse blagodarya polnomu privodu.</p>', '', '', 'SUV S1', 'suv,premium,diesel'),
+(10, 'Azerbaijan', 'SUV S2', 'suv-s2', '<p>SUV S2 qisa tesvir.</p>', '<p>SUV S2 ailevi istifade ucun genis baqaj ve rahat salon sunur.</p>', '', '', 'SUV S2', 'suv,comfort,petrol'),
+(10, 'English', 'SUV S2', 'suv-s2', '<p>Short overview of SUV S2.</p>', '<p>SUV S2 offers a spacious trunk and comfortable cabin for family use.</p>', '', '', 'SUV S2', 'suv,comfort,petrol'),
+(10, 'Russian', 'SUV S2', 'suv-s2', '<p>Kratkoe opisanie SUV S2.</p>', '<p>SUV S2 predlagaet prostorniy bagajnik i udobniy salon dlya semeynogo ispolzovaniya.</p>', '', '', 'SUV S2', 'suv,comfort,petrol'),
+(11, 'Azerbaijan', 'SUV S3', 'suv-s3', '<p>SUV S3 qisa tesvir.</p>', '<p>SUV S3 hibrid versiya olaraq guc ve iqtisadiyyati balanslayir.</p>', '', '', 'SUV S3', 'suv,premium,hybrid'),
+(11, 'English', 'SUV S3', 'suv-s3', '<p>Short overview of SUV S3.</p>', '<p>SUV S3 balances power and efficiency as a hybrid version.</p>', '', '', 'SUV S3', 'suv,premium,hybrid'),
+(11, 'Russian', 'SUV S3', 'suv-s3', '<p>Kratkoe opisanie SUV S3.</p>', '<p>SUV S3 v gibridnoy versii sochetaet moshnost i ekonomichnost.</p>', '', '', 'SUV S3', 'suv,premium,hybrid'),
+(12, 'Azerbaijan', 'SUV S4', 'suv-s4', '<p>SUV S4 qisa tesvir.</p>', '<p>SUV S4 elektrik platformasi ile ekoloji ve yuksek texnologiyali secimdir.</p>', '', '', 'SUV S4', 'suv,premium,electric'),
+(12, 'English', 'SUV S4', 'suv-s4', '<p>Short overview of SUV S4.</p>', '<p>SUV S4 is an eco-oriented and high-tech option with an electric platform.</p>', '', '', 'SUV S4', 'suv,premium,electric'),
+(12, 'Russian', 'SUV S4', 'suv-s4', '<p>Kratkoe opisanie SUV S4.</p>', '<p>SUV S4 eto ekologichniy i tehnologichniy variant na elektricheskoy platforme.</p>', '', '', 'SUV S4', 'suv,premium,electric'),
+(13, 'Azerbaijan', 'Yaz tekeri secimi uzre qisa rehber', 'blog-yaz-tekeri', '<p>Yaz tekeri secerken diqqet edilmeli meqamlar.</p>', '<p>Bu meqalede olcu secimi, indeksler ve istifade senarilerine gore qisa baxis verilir.</p>', '', '', 'Yaz tekeri rehberi', 'blog,teker,servis'),
+(13, 'English', 'Summer Tire Selection Guide', 'blog-yaz-tekeri', '<p>What to check when selecting summer tires.</p>', '<p>This article provides a short overview of size choice, load indexes and use scenarios.</p>', '', '', 'Summer Tire Guide', 'blog,tires,service'),
+(13, 'Russian', 'Kak vybrat letnie shini', 'blog-yaz-tekeri', '<p>Na chto smotret pri vibore letney rezini.</p>', '<p>V etoy statye kratko rassmotreni razmer, indeksi i scenarii ispolzovaniya.</p>', '', '', 'Letnie shini', 'blog,shini,servis'),
+(14, 'Azerbaijan', 'Hibrid vs elektrik', 'blog-hibrid-vs-elektrik', '<p>Hibrid ve elektrik avtomobillerin ferqi.</p>', '<p>Hibrid ve tam elektrik platformalarin ustunlukleri ve istifade xercleri muqayise olunur.</p>', '', '', 'Hibrid vs elektrik', 'blog,hibrid,elektrik'),
+(14, 'English', 'Hybrid vs Electric', 'blog-hibrid-vs-elektrik', '<p>Difference between hybrid and electric vehicles.</p>', '<p>We compare key advantages and ownership costs of hybrid and full electric platforms.</p>', '', '', 'Hybrid vs Electric', 'blog,hybrid,electric'),
+(14, 'Russian', 'Gibrid protiv elektro', 'blog-hibrid-vs-elektrik', '<p>Raznica mezhdu gibridnimi i elektricheskimi avto.</p>', '<p>Sravnivaem preimushestva i rashodi na ekspluataciyu u dvuh platform.</p>', '', '', 'Gibrid protiv elektro', 'blog,gibrid,elektro'),
+(15, 'Azerbaijan', 'Seher ucun sedan yoxsa hecbek', 'blog-seher-ucun-sedan-hecbek', '<p>Seher ucun sedan yoxsa hecbek?</p>', '<p>Park, manevr, bagaj ve yanacaq meyarlarina gore praktik secim meqalasi.</p>', '', '', 'Sedan yoxsa hecbek', 'blog,sedan,hecbek'),
+(15, 'English', 'Sedan or Hatchback for City', 'blog-seher-ucun-sedan-hecbek', '<p>Sedan or hatchback for city driving?</p>', '<p>A practical comparison by parking ease, maneuverability, trunk space and fuel usage.</p>', '', '', 'Sedan or Hatchback', 'blog,sedan,hatchback'),
+(15, 'Russian', 'Sedan ili hetchbek dlya goroda', 'blog-seher-ucun-sedan-hecbek', '<p>Sedan ili hetchbek dlya gorodskih poezdok?</p>', '<p>Prakticheskoe sravnenie po parkovke, manevrennosti, bagajniku i rashodu topliva.</p>', '', '', 'Sedan ili hetchbek', 'blog,sedan,hetchbek'),
+(16, 'Azerbaijan', 'SUV alarken 5 parametr', 'blog-suv-alarken-5-parametr', '<p>SUV alarken baxilmali 5 esas parametr.</p>', '<p>Kuzov olcusu, cekis sistemi, guvenlik paketleri ve servis xercleri izah edilir.</p>', '', '', 'SUV alarken 5 parametr', 'blog,suv,guide'),
+(16, 'English', '5 Parameters Before Buying SUV', 'blog-suv-alarken-5-parametr', '<p>Five key parameters before buying an SUV.</p>', '<p>We explain body size, traction setup, safety packages and service costs.</p>', '', '', '5 Parameters Before Buying SUV', 'blog,suv,guide'),
+(16, 'Russian', '5 parametrov pered pokupkoy SUV', 'blog-suv-alarken-5-parametr', '<p>Pyat vazhnih parametrov pered pokupkoy SUV.</p>', '<p>Razbiraem razmer kuzova, tip privoda, paketi bezopasnosti i stoimost servisa.</p>', '', '', '5 parametrov pered pokupkoy SUV', 'blog,suv,guide');
 
 -- --------------------------------------------------------
 
@@ -850,6 +973,64 @@ CREATE TABLE `dle_post_pass` (
   `news_id` int NOT NULL DEFAULT '0',
   `password` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tablo için tablo yapısı `dle_post_xfields_i18n`
+--
+
+CREATE TABLE `dle_post_xfields_i18n` (
+  `news_id` int UNSIGNED NOT NULL,
+  `lang` varchar(32) NOT NULL,
+  `xfields` mediumtext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Tablo döküm verisi `dle_post_xfields_i18n`
+--
+
+INSERT INTO `dle_post_xfields_i18n` (`news_id`, `lang`, `xfields`) VALUES
+(1, 'Azerbaijan', 'color|qara||price|24500||product_type|premium||fuel|benzin'),
+(1, 'English', 'color|black||price|24500||product_type|premium||fuel|petrol'),
+(1, 'Russian', 'color|cerniy||price|24500||product_type|premium||fuel|benzin'),
+(2, 'Azerbaijan', 'color|qirmizi||price|21900||product_type|komfort||fuel|dizel'),
+(2, 'English', 'color|red||price|21900||product_type|comfort||fuel|diesel'),
+(2, 'Russian', 'color|krasniy||price|21900||product_type|komfort||fuel|dizel'),
+(3, 'Azerbaijan', 'color|goy||price|27100||product_type|ekonom||fuel|hibrid'),
+(3, 'English', 'color|blue||price|27100||product_type|economy||fuel|hybrid'),
+(3, 'Russian', 'color|siniy||price|27100||product_type|ekonom||fuel|gibrid'),
+(4, 'Azerbaijan', 'color|qara||price|29900||product_type|premium||fuel|benzin'),
+(4, 'English', 'color|black||price|29900||product_type|premium||fuel|petrol'),
+(4, 'Russian', 'color|cerniy||price|29900||product_type|premium||fuel|benzin'),
+(5, 'Azerbaijan', 'color|qirmizi||price|17300||product_type|ekonom||fuel|benzin'),
+(5, 'English', 'color|red||price|17300||product_type|economy||fuel|petrol'),
+(5, 'Russian', 'color|krasniy||price|17300||product_type|ekonom||fuel|benzin'),
+(6, 'Azerbaijan', 'color|qara||price|18900||product_type|komfort||fuel|dizel'),
+(6, 'English', 'color|black||price|18900||product_type|comfort||fuel|diesel'),
+(6, 'Russian', 'color|cerniy||price|18900||product_type|komfort||fuel|dizel'),
+(7, 'Azerbaijan', 'color|goy||price|20100||product_type|komfort||fuel|hibrid'),
+(7, 'English', 'color|blue||price|20100||product_type|comfort||fuel|hybrid'),
+(7, 'Russian', 'color|siniy||price|20100||product_type|komfort||fuel|gibrid'),
+(8, 'Azerbaijan', 'color|qara||price|23800||product_type|premium||fuel|elektrik'),
+(8, 'English', 'color|black||price|23800||product_type|premium||fuel|electric'),
+(8, 'Russian', 'color|cerniy||price|23800||product_type|premium||fuel|elektro'),
+(9, 'Azerbaijan', 'color|qara||price|33200||product_type|premium||fuel|dizel'),
+(9, 'English', 'color|black||price|33200||product_type|premium||fuel|diesel'),
+(9, 'Russian', 'color|cerniy||price|33200||product_type|premium||fuel|dizel'),
+(10, 'Azerbaijan', 'color|qirmizi||price|30500||product_type|komfort||fuel|benzin'),
+(10, 'English', 'color|red||price|30500||product_type|comfort||fuel|petrol'),
+(10, 'Russian', 'color|krasniy||price|30500||product_type|komfort||fuel|benzin'),
+(11, 'Azerbaijan', 'color|goy||price|34700||product_type|premium||fuel|hibrid'),
+(11, 'English', 'color|blue||price|34700||product_type|premium||fuel|hybrid'),
+(11, 'Russian', 'color|siniy||price|34700||product_type|premium||fuel|gibrid'),
+(12, 'Azerbaijan', 'color|qara||price|38900||product_type|premium||fuel|elektrik'),
+(12, 'English', 'color|black||price|38900||product_type|premium||fuel|electric'),
+(12, 'Russian', 'color|cerniy||price|38900||product_type|premium||fuel|elektro'),
+(13, 'Azerbaijan', ''),
+(14, 'Azerbaijan', ''),
+(15, 'Azerbaijan', ''),
+(16, 'Azerbaijan', '');
 
 -- --------------------------------------------------------
 
@@ -1045,7 +1226,8 @@ CREATE TABLE `dle_static` (
 --
 
 INSERT INTO `dle_static` (`id`, `name`, `descr`, `template`, `allow_br`, `allow_template`, `grouplevel`, `tpl`, `metadescr`, `metakeys`, `views`, `template_folder`, `date`, `metatitle`, `allow_count`, `sitemap`, `disable_index`, `disable_search`, `password`) VALUES
-(1, 'dle-rules-page', 'General rules on the website', '<b>General rules of conduct on the website:</b><br><br>To begin with, hundreds of people of different religions and beliefs are communicate on the website, and all of them are full-fledged visitors of our website, so if we want a community of people to function, then we need rules. We strongly recommend that you read these rules. It will take just five minutes, but it will save your and our time and will help make the website more interesting and organized.<br><br>Firstly, you should behave respectfully to all visitors on our website. Do not insult to the participants, it is always unwanted. If you have a complaint - contact administrators or moderators (use personal messages). We considered insulting of other visitors one of the most serious violations and it is severely punished by the administration. <b>Racism, religious and political speech are strictly forbidden.</b> Thank you for your understanding and desire to make our website more polite and friendly.<br><br><b>The following is strictly prohibited:</b> <br><br>- messages not related to the content of the article or to the context of the discussion<br>- insults and threats to other visitors<br>- expressions that contain profanity, degrading, inciting ethnic strife are prohibited in comments<br>- spam and advertising of any goods and services, other resources, media or events not related to the context of discussion of the article<br><br>Let us respect each other and the site where you and other readers come to talk and express their thoughts. The Administration reserves the right to remove comments, or comment parts, if they do not meet these requirements.<br><br>If you violate the rules you may be given a <b>warning</b>. In some cases, you may be banned <b>without warning</b>. Contact the Administrator regarding ban removal.<br><br><b>Insulting</b> of administrators and moderators is also punished by a <b>ban</b> - Respect other people\'s labor.<br><br><div style=\"text-align:center;\">{ACCEPT-DECLINE}</div>', 1, 1, 'all', '', 'General rules on the website', 'General rules on the website', 16, '', 1771496697, '', 1, 1, 0, 0, '');
+(1, 'dle-rules-page', 'General rules on the website', '<b>General rules of conduct on the website:</b><br><br>To begin with, hundreds of people of different religions and beliefs are communicate on the website, and all of them are full-fledged visitors of our website, so if we want a community of people to function, then we need rules. We strongly recommend that you read these rules. It will take just five minutes, but it will save your and our time and will help make the website more interesting and organized.<br><br>Firstly, you should behave respectfully to all visitors on our website. Do not insult to the participants, it is always unwanted. If you have a complaint - contact administrators or moderators (use personal messages). We considered insulting of other visitors one of the most serious violations and it is severely punished by the administration. <b>Racism, religious and political speech are strictly forbidden.</b> Thank you for your understanding and desire to make our website more polite and friendly.<br><br><b>The following is strictly prohibited:</b> <br><br>- messages not related to the content of the article or to the context of the discussion<br>- insults and threats to other visitors<br>- expressions that contain profanity, degrading, inciting ethnic strife are prohibited in comments<br>- spam and advertising of any goods and services, other resources, media or events not related to the context of discussion of the article<br><br>Let us respect each other and the site where you and other readers come to talk and express their thoughts. The Administration reserves the right to remove comments, or comment parts, if they do not meet these requirements.<br><br>If you violate the rules you may be given a <b>warning</b>. In some cases, you may be banned <b>without warning</b>. Contact the Administrator regarding ban removal.<br><br><b>Insulting</b> of administrators and moderators is also punished by a <b>ban</b> - Respect other people\'s labor.<br><br><div style=\"text-align:center;\">{ACCEPT-DECLINE}</div>', 1, 1, 'all', '', 'General rules on the website', 'General rules on the website', 26, '', 1771496697, '', 1, 1, 0, 0, ''),
+(2, 'haqqimizda', 'Haqqimizda', '<p>test</p>', 0, 0, 'all', '', 'Biz sedan, hecbek ve SUV modelleri uzre demo katalog teqdim edirik. Sayt 3 dilli ve xfields filter sistemi ile qurulub.', 'sedan, hecbek, modelleri, katalog, teqdim, edirik, dilli, xfields, filter, sistemi, qurulub', 83, '', 1774612049, 'Haqqimizda', 1, 1, 0, 0, '');
 
 -- --------------------------------------------------------
 
@@ -1076,6 +1258,7 @@ CREATE TABLE `dle_static_files` (
 CREATE TABLE `dle_static_i18n` (
   `static_id` int UNSIGNED NOT NULL,
   `lang` varchar(32) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
   `descr` varchar(255) NOT NULL DEFAULT '',
   `template` mediumtext NOT NULL,
   `metadescr` varchar(300) NOT NULL DEFAULT '',
@@ -1087,10 +1270,16 @@ CREATE TABLE `dle_static_i18n` (
 -- Tablo döküm verisi `dle_static_i18n`
 --
 
-INSERT INTO `dle_static_i18n` (`static_id`, `lang`, `descr`, `template`, `metadescr`, `metakeys`, `metatitle`) VALUES
-(1, 'Azerbaijan', 'General rules on the website', '<b>General rules of conduct on the website:</b><br><br>To begin with, hundreds of people of different religions and beliefs are communicate on the website, and all of them are full-fledged visitors of our website, so if we want a community of people to function, then we need rules. We strongly recommend that you read these rules. It will take just five minutes, but it will save your and our time and will help make the website more interesting and organized.<br><br>Firstly, you should behave respectfully to all visitors on our website. Do not insult to the participants, it is always unwanted. If you have a complaint - contact administrators or moderators (use personal messages). We considered insulting of other visitors one of the most serious violations and it is severely punished by the administration. <b>Racism, religious and political speech are strictly forbidden.</b> Thank you for your understanding and desire to make our website more polite and friendly.<br><br><b>The following is strictly prohibited:</b> <br><br>- messages not related to the content of the article or to the context of the discussion<br>- insults and threats to other visitors<br>- expressions that contain profanity, degrading, inciting ethnic strife are prohibited in comments<br>- spam and advertising of any goods and services, other resources, media or events not related to the context of discussion of the article<br><br>Let us respect each other and the site where you and other readers come to talk and express their thoughts. The Administration reserves the right to remove comments, or comment parts, if they do not meet these requirements.<br><br>If you violate the rules you may be given a <b>warning</b>. In some cases, you may be banned <b>without warning</b>. Contact the Administrator regarding ban removal.<br><br><b>Insulting</b> of administrators and moderators is also punished by a <b>ban</b> - Respect other people\'s labor.<br><br><div style=\"text-align:center;\">{ACCEPT-DECLINE}</div>', 'General rules on the website', 'General rules on the website', ''),
-(1, 'English', 'General rules on the website', '<b>General rules of conduct on the website:</b><br><br>To begin with, hundreds of people of different religions and beliefs are communicate on the website, and all of them are full-fledged visitors of our website, so if we want a community of people to function, then we need rules. We strongly recommend that you read these rules. It will take just five minutes, but it will save your and our time and will help make the website more interesting and organized.<br><br>Firstly, you should behave respectfully to all visitors on our website. Do not insult to the participants, it is always unwanted. If you have a complaint - contact administrators or moderators (use personal messages). We considered insulting of other visitors one of the most serious violations and it is severely punished by the administration. <b>Racism, religious and political speech are strictly forbidden.</b> Thank you for your understanding and desire to make our website more polite and friendly.<br><br><b>The following is strictly prohibited:</b> <br><br>- messages not related to the content of the article or to the context of the discussion<br>- insults and threats to other visitors<br>- expressions that contain profanity, degrading, inciting ethnic strife are prohibited in comments<br>- spam and advertising of any goods and services, other resources, media or events not related to the context of discussion of the article<br><br>Let us respect each other and the site where you and other readers come to talk and express their thoughts. The Administration reserves the right to remove comments, or comment parts, if they do not meet these requirements.<br><br>If you violate the rules you may be given a <b>warning</b>. In some cases, you may be banned <b>without warning</b>. Contact the Administrator regarding ban removal.<br><br><b>Insulting</b> of administrators and moderators is also punished by a <b>ban</b> - Respect other people\'s labor.<br><br><div style=\"text-align:center;\">{ACCEPT-DECLINE}</div>', 'General rules on the website', 'General rules on the website', ''),
-(1, 'Russian', 'General rules on the website', '<b>General rules of conduct on the website:</b><br><br>To begin with, hundreds of people of different religions and beliefs are communicate on the website, and all of them are full-fledged visitors of our website, so if we want a community of people to function, then we need rules. We strongly recommend that you read these rules. It will take just five minutes, but it will save your and our time and will help make the website more interesting and organized.<br><br>Firstly, you should behave respectfully to all visitors on our website. Do not insult to the participants, it is always unwanted. If you have a complaint - contact administrators or moderators (use personal messages). We considered insulting of other visitors one of the most serious violations and it is severely punished by the administration. <b>Racism, religious and political speech are strictly forbidden.</b> Thank you for your understanding and desire to make our website more polite and friendly.<br><br><b>The following is strictly prohibited:</b> <br><br>- messages not related to the content of the article or to the context of the discussion<br>- insults and threats to other visitors<br>- expressions that contain profanity, degrading, inciting ethnic strife are prohibited in comments<br>- spam and advertising of any goods and services, other resources, media or events not related to the context of discussion of the article<br><br>Let us respect each other and the site where you and other readers come to talk and express their thoughts. The Administration reserves the right to remove comments, or comment parts, if they do not meet these requirements.<br><br>If you violate the rules you may be given a <b>warning</b>. In some cases, you may be banned <b>without warning</b>. Contact the Administrator regarding ban removal.<br><br><b>Insulting</b> of administrators and moderators is also punished by a <b>ban</b> - Respect other people\'s labor.<br><br><div style=\"text-align:center;\">{ACCEPT-DECLINE}</div>', 'General rules on the website', 'General rules on the website', '');
+INSERT INTO `dle_static_i18n` (`static_id`, `lang`, `name`, `descr`, `template`, `metadescr`, `metakeys`, `metatitle`) VALUES
+(1, 'Azerbaijan', '', 'General rules on the website', '<b>General rules of conduct on the website:</b><br><br>To begin with, hundreds of people of different religions and beliefs are communicate on the website, and all of them are full-fledged visitors of our website, so if we want a community of people to function, then we need rules. We strongly recommend that you read these rules. It will take just five minutes, but it will save your and our time and will help make the website more interesting and organized.<br><br>Firstly, you should behave respectfully to all visitors on our website. Do not insult to the participants, it is always unwanted. If you have a complaint - contact administrators or moderators (use personal messages). We considered insulting of other visitors one of the most serious violations and it is severely punished by the administration. <b>Racism, religious and political speech are strictly forbidden.</b> Thank you for your understanding and desire to make our website more polite and friendly.<br><br><b>The following is strictly prohibited:</b> <br><br>- messages not related to the content of the article or to the context of the discussion<br>- insults and threats to other visitors<br>- expressions that contain profanity, degrading, inciting ethnic strife are prohibited in comments<br>- spam and advertising of any goods and services, other resources, media or events not related to the context of discussion of the article<br><br>Let us respect each other and the site where you and other readers come to talk and express their thoughts. The Administration reserves the right to remove comments, or comment parts, if they do not meet these requirements.<br><br>If you violate the rules you may be given a <b>warning</b>. In some cases, you may be banned <b>without warning</b>. Contact the Administrator regarding ban removal.<br><br><b>Insulting</b> of administrators and moderators is also punished by a <b>ban</b> - Respect other people\'s labor.<br><br><div style=\"text-align:center;\">{ACCEPT-DECLINE}</div>', 'General rules on the website', 'General rules on the website', ''),
+(1, 'English', '', 'General rules on the website', '<b>General rules of conduct on the website:</b><br><br>To begin with, hundreds of people of different religions and beliefs are communicate on the website, and all of them are full-fledged visitors of our website, so if we want a community of people to function, then we need rules. We strongly recommend that you read these rules. It will take just five minutes, but it will save your and our time and will help make the website more interesting and organized.<br><br>Firstly, you should behave respectfully to all visitors on our website. Do not insult to the participants, it is always unwanted. If you have a complaint - contact administrators or moderators (use personal messages). We considered insulting of other visitors one of the most serious violations and it is severely punished by the administration. <b>Racism, religious and political speech are strictly forbidden.</b> Thank you for your understanding and desire to make our website more polite and friendly.<br><br><b>The following is strictly prohibited:</b> <br><br>- messages not related to the content of the article or to the context of the discussion<br>- insults and threats to other visitors<br>- expressions that contain profanity, degrading, inciting ethnic strife are prohibited in comments<br>- spam and advertising of any goods and services, other resources, media or events not related to the context of discussion of the article<br><br>Let us respect each other and the site where you and other readers come to talk and express their thoughts. The Administration reserves the right to remove comments, or comment parts, if they do not meet these requirements.<br><br>If you violate the rules you may be given a <b>warning</b>. In some cases, you may be banned <b>without warning</b>. Contact the Administrator regarding ban removal.<br><br><b>Insulting</b> of administrators and moderators is also punished by a <b>ban</b> - Respect other people\'s labor.<br><br><div style=\"text-align:center;\">{ACCEPT-DECLINE}</div>', 'General rules on the website', 'General rules on the website', ''),
+(1, 'Russian', '', 'General rules on the website', '<b>General rules of conduct on the website:</b><br><br>To begin with, hundreds of people of different religions and beliefs are communicate on the website, and all of them are full-fledged visitors of our website, so if we want a community of people to function, then we need rules. We strongly recommend that you read these rules. It will take just five minutes, but it will save your and our time and will help make the website more interesting and organized.<br><br>Firstly, you should behave respectfully to all visitors on our website. Do not insult to the participants, it is always unwanted. If you have a complaint - contact administrators or moderators (use personal messages). We considered insulting of other visitors one of the most serious violations and it is severely punished by the administration. <b>Racism, religious and political speech are strictly forbidden.</b> Thank you for your understanding and desire to make our website more polite and friendly.<br><br><b>The following is strictly prohibited:</b> <br><br>- messages not related to the content of the article or to the context of the discussion<br>- insults and threats to other visitors<br>- expressions that contain profanity, degrading, inciting ethnic strife are prohibited in comments<br>- spam and advertising of any goods and services, other resources, media or events not related to the context of discussion of the article<br><br>Let us respect each other and the site where you and other readers come to talk and express their thoughts. The Administration reserves the right to remove comments, or comment parts, if they do not meet these requirements.<br><br>If you violate the rules you may be given a <b>warning</b>. In some cases, you may be banned <b>without warning</b>. Contact the Administrator regarding ban removal.<br><br><b>Insulting</b> of administrators and moderators is also punished by a <b>ban</b> - Respect other people\'s labor.<br><br><div style=\"text-align:center;\">{ACCEPT-DECLINE}</div>', 'General rules on the website', 'General rules on the website', ''),
+(2, 'Azerbaijan', 'haqqimizda', 'Haqqimizda', '<p>test</p>', 'Biz sedan, hecbek ve SUV modelleri uzre demo katalog teqdim edirik. Sayt 3 dilli ve xfields filter sistemi ile qurulub.', 'sedan, hecbek, modelleri, katalog, teqdim, edirik, dilli, xfields, filter, sistemi, qurulub', 'Haqqimizda'),
+(2, 'English', 'about', 'About', '<p>test</p>', 'We provide a demo catalog for sedan, hatchback and SUV models. The site is built with 3-language content and xfields-based filtering.', 'provide, catalog, sedan, hatchback, models, built, 3language, content, xfieldsbased, filtering', 'About'),
+(2, 'Russian', 'o-nas', 'O nas', '<p>test</p>', 'My predlagaem demo-katalog sedan, hatchback i SUV modeley. Sayt postroen s podderjkoy 3 yazikov i filtracii na osnove xfields.', 'predlagaem, demokatalog, sedan, hatchback, modeley, postroen, podderjkoy, yazikov, filtracii, osnove, xfields', 'O nas'),
+(3, 'Azerbaijan', 'static', 'static', '<p>salam</p>', 'salam', 'salam', ''),
+(3, 'English', 'static', 'static', '<p>salam</p>', 'salam', 'salam', ''),
+(3, 'Russian', 'static', 'static', '<p>salam</p>', 'salam', 'salam', '');
 
 -- --------------------------------------------------------
 
@@ -1371,7 +1560,7 @@ CREATE TABLE `dle_users` (
 --
 
 INSERT INTO `dle_users` (`email`, `password`, `name`, `user_id`, `news_num`, `comm_num`, `user_group`, `lastdate`, `reg_date`, `banned`, `allow_mail`, `info`, `signature`, `foto`, `fullname`, `land`, `favorites`, `pm_all`, `pm_unread`, `time_limit`, `xfields`, `allowed_ip`, `hash`, `logged_ip`, `restricted`, `restricted_days`, `restricted_date`, `timezone`, `news_subscribe`, `comments_reply_subscribe`, `twofactor_auth`, `cat_add`, `cat_allow_addnews`, `twofactor_secret`) VALUES
-('admin@mail.ru', '$2y$10$TSOetRtIgSxBOrzDtbsjlevT5PvXaOeLzkzBjxVeEeKFN7s2JQQg2', 'admin', 1, 3, 0, 1, '1774519962', '1771496697', '', 1, '', '', '', '', '', '', 0, 0, '', '', '', '48cfcc14c983577debe1ef73cc4e3fca', '::1', 0, 0, '', '', 0, 0, 0, '', '', '');
+('admin@mail.ru', '$2y$10$TSOetRtIgSxBOrzDtbsjlevT5PvXaOeLzkzBjxVeEeKFN7s2JQQg2', 'admin', 1, 4, 0, 1, '1774855779', '1771496697', '', 1, '', '', '', '', '', '', 0, 0, '', '', '', '96cee33b2518c7bc9d8783a98fd3f99c', '::1', 0, 0, '', '', 0, 0, 0, '', '', '');
 
 -- --------------------------------------------------------
 
@@ -1777,6 +1966,13 @@ ALTER TABLE `dle_post_pass`
   ADD KEY `news_id` (`news_id`);
 
 --
+-- Tablo için indeksler `dle_post_xfields_i18n`
+--
+ALTER TABLE `dle_post_xfields_i18n`
+  ADD PRIMARY KEY (`news_id`,`lang`),
+  ADD KEY `lang` (`lang`);
+
+--
 -- Tablo için indeksler `dle_question`
 --
 ALTER TABLE `dle_question`
@@ -1959,7 +2155,7 @@ ALTER TABLE `dle_xfsearch`
 -- Tablo için AUTO_INCREMENT değeri `dle_admin_logs`
 --
 ALTER TABLE `dle_admin_logs`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `dle_admin_sections`
@@ -2079,7 +2275,7 @@ ALTER TABLE `dle_links`
 -- Tablo için AUTO_INCREMENT değeri `dle_login_log`
 --
 ALTER TABLE `dle_login_log`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `dle_logs`
@@ -2145,19 +2341,19 @@ ALTER TABLE `dle_poll_log`
 -- Tablo için AUTO_INCREMENT değeri `dle_post`
 --
 ALTER TABLE `dle_post`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `dle_post_extras`
 --
 ALTER TABLE `dle_post_extras`
-  MODIFY `eid` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `eid` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `dle_post_extras_cats`
 --
 ALTER TABLE `dle_post_extras_cats`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `dle_post_log`
@@ -2223,7 +2419,7 @@ ALTER TABLE `dle_spam_log`
 -- Tablo için AUTO_INCREMENT değeri `dle_static`
 --
 ALTER TABLE `dle_static`
-  MODIFY `id` mediumint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` mediumint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `dle_static_files`
