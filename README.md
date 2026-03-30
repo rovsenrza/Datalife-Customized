@@ -52,8 +52,18 @@ Kateqoriyadan post çəkmək üçün:
 `[not-available=main]` daxilində adətən bunlar işlədilir:
 - `{category-title}`
 - `{category-icon}`
+- `{category-icon-2}` ... `{category-icon-10}`
+- `{category-icons}` (əlavə ikonların vergüllə siyahısı)
 - `{info}`
 - `{content}`
+
+Category icon blokları:
+```tpl
+[category-icon]<img src="{category-icon}" alt="">[/category-icon]
+[category-icon-2]<img src="{category-icon-2}" alt="">[/category-icon-2]
+[not-category-icon-2]...[/not-category-icon-2]
+[category-icons]...[/category-icons]
+```
 
 `{content}` bu tpl-ləri kontekstə görə gətirir:
 - Contact səhifəsi → `feedback.tpl`
@@ -75,7 +85,48 @@ Məhsul kateqoriyalarında filter çağırışı:
 - Search form adətən `main.tpl` içində olur.
 - Axtarış nəticələri `searchresult.tpl` ilə göstərilir.
 
-## 9) Tez Mapping Cədvəli
+## 9) XFields Sintaksis (Vacib)
+XField çağırışları `[]` ilə yazılır, `{}` ilə yox.
+
+Doğru:
+```tpl
+[xfvalue_price]
+[xfgiven_price]...[/xfgiven_price]
+[xfnotgiven_price]...[/xfnotgiven_price]
+```
+
+Yanlış:
+```tpl
+{xfvalue_price}
+[not-xfgiven_price]...[/not-xfgiven_price]
+```
+
+### Nəyi ifadə edir?
+- `[xfvalue_fieldname]`  
+  XField-in dəyərini çıxarır.
+- `[xfgiven_fieldname]...[/xfgiven_fieldname]`  
+  Dəyər varsa içindəki blok görünür.
+- `[xfnotgiven_fieldname]...[/xfnotgiven_fieldname]`  
+  Dəyər yoxdursa içindəki blok görünür.
+
+### `multifile` XField çağırışı
+- `multifile` tipində də əsas çağırış eynidir:
+```tpl
+[xfvalue_docs]
+```
+- Bu çağırış nəticədə faylların siyahısını (`<ul class="xfieldfiles ..."><li><a ...`) qaytarır.
+- Şərt blokları da eyni qayda ilə işləyir:
+```tpl
+[xfgiven_docs]
+  [xfvalue_docs]
+[/xfgiven_docs]
+
+[xfnotgiven_docs]
+  Fayl əlavə edilməyib
+[/xfnotgiven_docs]
+```
+
+## 10) Tez Mapping Cədvəli
 - Homepage: `main.tpl` (`[available=main]`)
 - Not-main container: `main.tpl` (`[not-available=main]`)
 - Category cards: `shortstory.tpl` / custom tpl

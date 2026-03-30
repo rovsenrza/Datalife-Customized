@@ -20,10 +20,10 @@
 			<div class="text-sm text-atelier_secondary mb-6">{author}</div>
 
 			<div class="grid sm:grid-cols-2 gap-3 mb-6">
-				[xfgiven_price]<div class="bg-white border border-atelier_outline/60 p-3"><p class="font-label text-[11px] uppercase tracking-[0.16em] text-atelier_secondary mb-1">{lang_label_price}</p><p class="text-lg">{xfvalue_price}</p></div>[/xfgiven_price]
-				[xfgiven_product_type]<div class="bg-white border border-atelier_outline/60 p-3"><p class="font-label text-[11px] uppercase tracking-[0.16em] text-atelier_secondary mb-1">{lang_label_type}</p><p class="text-lg">{xfvalue_product_type}</p></div>[/xfgiven_product_type]
-				[xfgiven_color]<div class="bg-white border border-atelier_outline/60 p-3"><p class="font-label text-[11px] uppercase tracking-[0.16em] text-atelier_secondary mb-1">{lang_label_color}</p><p class="text-lg">{xfvalue_color}</p></div>[/xfgiven_color]
-				[xfgiven_fuel]<div class="bg-white border border-atelier_outline/60 p-3"><p class="font-label text-[11px] uppercase tracking-[0.16em] text-atelier_secondary mb-1">{lang_label_fuel}</p><p class="text-lg">{xfvalue_fuel}</p></div>[/xfgiven_fuel]
+				[xfgiven_price]<div class="bg-white border border-atelier_outline/60 p-3"><p class="font-label text-[11px] uppercase tracking-[0.16em] text-atelier_secondary mb-1">{lang_label_price}</p><p class="text-lg">[xfvalue_price]</p></div>[/xfgiven_price]
+				[xfgiven_product_type]<div class="bg-white border border-atelier_outline/60 p-3"><p class="font-label text-[11px] uppercase tracking-[0.16em] text-atelier_secondary mb-1">{lang_label_type}</p><p class="text-lg">[xfvalue_product_type]</p></div>[/xfgiven_product_type]
+				[xfgiven_color]<div class="bg-white border border-atelier_outline/60 p-3"><p class="font-label text-[11px] uppercase tracking-[0.16em] text-atelier_secondary mb-1">{lang_label_color}</p><p class="text-lg">[xfvalue_color]</p></div>[/xfgiven_color]
+				[xfgiven_fuel]<div class="bg-white border border-atelier_outline/60 p-3"><p class="font-label text-[11px] uppercase tracking-[0.16em] text-atelier_secondary mb-1">{lang_label_fuel}</p><p class="text-lg">[xfvalue_fuel]</p></div>[/xfgiven_fuel]
 			</div>
 
 			<div class="auto-content text-atelier_ink leading-relaxed mb-8">

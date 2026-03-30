@@ -520,6 +520,25 @@ if (stripos ( $tpl->copy_template, "[not-category=" ) !== false) {
 	$tpl->copy_template = preg_replace_callback ( "#\\[(not-category)=(.+?)\\](.*?)\\[/not-category\\]#is", "check_category", $tpl->copy_template );
 }
 
+if( $category_id AND isset($cat_info[$category_id]['icon']) AND $cat_info[$category_id]['icon'] ) {
+
+	$tpl->set( '{category-icon}', $cat_info[$category_id]['icon'] );
+	$tpl->set( '[category-icon]', "" );
+	$tpl->set( '[/category-icon]', "" );
+	$tpl->set_block( "'\\[not-category-icon\\](.*?)\\[/not-category-icon\\]'si", "" );
+
+} else {
+
+	$tpl->set( '{category-icon}', "{THEME}/dleimages/no_icon.gif" );
+	$tpl->set( '[not-category-icon]', "" );
+	$tpl->set( '[/not-category-icon]', "" );
+	$tpl->set_block( "'\\[category-icon\\](.*?)\\[/category-icon\\]'si", "" );
+}
+
+if( function_exists('dle_set_category_additional_icon_tags') ) {
+	dle_set_category_additional_icon_tags($tpl, $category_id);
+}
+
 if( !isset($dle_category_filters_html) ) {
 	$dle_category_filters_html = '';
 }

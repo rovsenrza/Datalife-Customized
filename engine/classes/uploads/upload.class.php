@@ -909,6 +909,16 @@ HTML;
 
 			}
 
+			if ($this->area == "xfieldsmultifile") {
+
+				$xf_url = $is_public ? $data_url : $download_url;
+				$xfvalue = "{$xf_url}|{$id}|{$size}";
+				$xf_id = md5($xfvalue);
+
+				$return_box = "<div class=\"file-preview-card uploadedfile\" id=\"xf_{$xf_id}\" data-id=\"{$xfvalue}\" data-alt=\"\"><div class=\"active-ribbon\"><span><i class=\"mediaupload-icon mediaupload-icon-ok\"></i></span></div><div class=\"file-content\" style=\"background-color: {$b_color};\"><div class=\"file-ext\">{$file_type}</div>{$file_icon}</div><div class=\"file-footer\"><div class=\"file-footer-caption\"><div class=\"file-caption-info\" rel=\"tooltip\" title=\"{$db_file_name}\">{$base_name}</div><div class=\"file-size-info\">({$size})</div></div><div class=\"file-footer-bottom\"><div class=\"file-preview\"><a onclick=\"xfaddalt('" . $xf_id . "', '" . $_REQUEST['xfname'] . "');return false;\" href=\"#\" rel=\"tooltip\" title=\"{$lang['xf_img_descr']}\"><i class=\"mediaupload-icon mediaupload-icon-edit\"></i></a></div><div class=\"file-delete\"><a onclick=\"xfmultifiledelete_" . md5($_REQUEST['xfname']) . "('" . $_REQUEST['xfname'] . "','" . $id . "', '" . $xf_id . "');return false;\" href=\"#\"><i class=\"mediaupload-icon mediaupload-icon-trash\"></i></a></div></div></div></div>";
+
+			}
+
 		} elseif ( in_array( $type, $this->allowed_extensions ) AND $user_group[$member_id['user_group']]['allow_image_upload'] ) {
 
 			$min_size_upload = true;

@@ -33,6 +33,192 @@ function dle_ml_code_from_folder($folder) {
     return 'en';
 }
 
+function dle_ml_languages_file_path() {
+    return ENGINE_DIR . '/data/site_languages.json';
+}
+
+function dle_ml_sanitize_folder_key($folder) {
+    $folder = totranslit(trim((string)$folder), false, false);
+    $folder = preg_replace('/[^a-zA-Z0-9_\-]/', '', $folder);
+
+    return trim((string)$folder);
+}
+
+function dle_ml_get_languages_all($force = false) {
+    global $config;
+
+    static $cache = null;
+
+    if (!$force && is_array($cache)) {
+        return $cache;
+    }
+
+    $folder_map = get_folder_list('language');
+    if (!is_array($folder_map)) $folder_map = array();
+
+    $languages = array();
+    $ordered_folders = array();
+    $seen_keys = array();
+    $file_path = dle_ml_languages_file_path();
+    $registry = array();
+
+    if (file_exists($file_path)) {
+        $raw = @file_get_contents($file_path);
+        if ($raw !== false && $raw !== '') {
+            $json = @json_decode($raw, true);
+            if (is_array($json)) {
+                $registry = $json;
+            }
+        }
+    }
+
+    if (is_array($registry) && count($registry)) {
+        foreach ($registry as $entry) {
+            if (!is_array($entry)) continue;
+
+            $folder = isset($entry['folder']) ? dle_ml_sanitize_folder_key($entry['folder']) : '';
+            if (!$folder) continue;
+
+            $key = strtolower($folder);
+            if (isset($seen_keys[$key])) continue;
+            $seen_keys[$key] = 1;
+            $ordered_folders[] = $folder;
+        }
+    }
+
+    if (is_array($folder_map)) {
+        foreach ($folder_map as $folder => $meta) {
+            $folder = dle_ml_sanitize_folder_key($folder);
+            if (!$folder) continue;
+
+            $key = strtolower($folder);
+            if (isset($seen_keys[$key])) continue;
+            $seen_keys[$key] = 1;
+            $ordered_folders[] = $folder;
+        }
+    }
+
+    foreach ($ordered_folders as $folder) {
+        $entry = array();
+
+        if (is_array($registry) && count($registry)) {
+            foreach ($registry as $row) {
+                if (!is_array($row)) continue;
+                if (!isset($row['folder'])) continue;
+                if (strtolower(dle_ml_sanitize_folder_key($row['folder'])) == strtolower($folder)) {
+                    $entry = $row;
+                    break;
+                }
+            }
+        }
+
+        $meta = isset($folder_map[$folder]) && is_array($folder_map[$folder]) ? $folder_map[$folder] : array();
+
+        $name = isset($entry['name']) ? trim((string)$entry['name']) : '';
+        if (!$name && isset($meta['name'])) $name = trim((string)$meta['name']);
+        if (!$name) $name = $folder;
+
+        $title = isset($entry['title']) ? trim((string)$entry['title']) : '';
+        if (!$title && isset($meta['title'])) $title = trim((string)$meta['title']);
+        if (!$title) $title = $name;
+
+        $code = isset($entry['code']) ? strtolower(trim((string)$entry['code'])) : '';
+        $code = preg_replace('/[^a-z0-9]/', '', $code);
+        if (!$code) $code = dle_ml_code_from_folder($folder);
+        if (strlen($code) > 10) $code = substr($code, 0, 10);
+
+        $icon = isset($entry['icon']) ? trim((string)$entry['icon']) : '';
+        if (!$icon && isset($meta['icon'])) $icon = trim((string)$meta['icon']);
+
+        $enabled = isset($entry['enabled']) ? intval($entry['enabled']) : 1;
+        $installed = isset($folder_map[$folder]) ? 1 : 0;
+
+        $languages[$folder] = array(
+            'folder' => $folder,
+            'name' => $name,
+            'title' => $title,
+            'code' => $code,
+            'icon' => $icon,
+            'enabled' => $enabled ? 1 : 0,
+            'installed' => $installed,
+        );
+    }
+
+    if (!count($languages)) {
+        $fallback = !empty($config['main_language']) ? $config['main_language'] : (!empty($config['langs']) ? $config['langs'] : 'English');
+        $fallback = dle_ml_sanitize_folder_key($fallback);
+        if (!$fallback) $fallback = 'English';
+
+        $languages[$fallback] = array(
+            'folder' => $fallback,
+            'name' => $fallback,
+            'title' => $fallback,
+            'code' => dle_ml_code_from_folder($fallback),
+            'icon' => '',
+            'enabled' => 1,
+            'installed' => 0,
+        );
+    }
+
+    $cache = $languages;
+
+    return $cache;
+}
+
+function dle_ml_save_languages_all($languages = array()) {
+    if (!is_array($languages)) return false;
+
+    $clean = array();
+    $seen = array();
+
+    foreach ($languages as $entry) {
+        if (!is_array($entry)) continue;
+
+        $folder = isset($entry['folder']) ? dle_ml_sanitize_folder_key($entry['folder']) : '';
+        if (!$folder) continue;
+
+        $key = strtolower($folder);
+        if (isset($seen[$key])) continue;
+        $seen[$key] = 1;
+
+        $title = isset($entry['title']) ? trim((string)$entry['title']) : '';
+        if (!$title) $title = $folder;
+
+        $name = isset($entry['name']) ? trim((string)$entry['name']) : $folder;
+        if (!$name) $name = $folder;
+
+        $code = isset($entry['code']) ? strtolower(trim((string)$entry['code'])) : '';
+        $code = preg_replace('/[^a-z0-9]/', '', $code);
+        if (!$code) $code = dle_ml_code_from_folder($folder);
+        if (strlen($code) > 10) $code = substr($code, 0, 10);
+
+        $icon = isset($entry['icon']) ? trim((string)$entry['icon']) : '';
+        $enabled = isset($entry['enabled']) ? intval($entry['enabled']) : 1;
+
+        $clean[] = array(
+            'folder' => $folder,
+            'name' => $name,
+            'title' => $title,
+            'code' => $code,
+            'icon' => $icon,
+            'enabled' => $enabled ? 1 : 0,
+        );
+    }
+
+    if (!count($clean)) return false;
+
+    $json = json_encode($clean, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false) return false;
+
+    if (@file_put_contents(dle_ml_languages_file_path(), $json) === false) return false;
+
+    if (function_exists('opcache_reset')) {
+        @opcache_reset();
+    }
+
+    return true;
+}
+
 function dle_ml_get_languages($force = false) {
     global $config;
 
@@ -42,44 +228,50 @@ function dle_ml_get_languages($force = false) {
         return $cache;
     }
 
-    $folders = get_folder_list('language');
+    $all_languages = dle_ml_get_languages_all($force);
     $languages = array();
 
-    if (is_array($folders)) {
-        foreach ($folders as $folder => $meta) {
-            $code = dle_ml_code_from_folder($folder);
-            $title = '';
-            $name = '';
-            $icon = '';
+    foreach ($all_languages as $folder => $meta) {
+        if (empty($meta['enabled'])) continue;
 
-            if (is_array($meta)) {
-                $title = isset($meta['title']) ? trim((string)$meta['title']) : '';
-                $name = isset($meta['name']) ? trim((string)$meta['name']) : '';
-                $icon = isset($meta['icon']) ? trim((string)$meta['icon']) : '';
-            }
-
-            if (!$name) $name = $folder;
-            if (!$title) $title = $name;
-
-            $languages[$folder] = array(
-                'folder' => $folder,
-                'name' => $name,
-                'title' => $title,
-                'code' => $code,
-                'icon' => $icon,
-            );
-        }
+        $languages[$folder] = array(
+            'folder' => $folder,
+            'name' => isset($meta['name']) ? $meta['name'] : $folder,
+            'title' => isset($meta['title']) ? $meta['title'] : $folder,
+            'code' => isset($meta['code']) ? $meta['code'] : dle_ml_code_from_folder($folder),
+            'icon' => isset($meta['icon']) ? $meta['icon'] : '',
+            'enabled' => 1,
+            'installed' => isset($meta['installed']) ? intval($meta['installed']) : 0,
+        );
     }
 
     if (!count($languages)) {
-        $fallback = !empty($config['langs']) ? $config['langs'] : 'English';
-        $languages[$fallback] = array(
-            'folder' => $fallback,
-            'name' => $fallback,
-            'title' => $fallback,
-            'code' => dle_ml_code_from_folder($fallback),
-            'icon' => '',
-        );
+        $main = isset($config['main_language']) ? (string)$config['main_language'] : '';
+        if ($main && isset($all_languages[$main])) {
+            $meta = $all_languages[$main];
+            $languages[$main] = array(
+                'folder' => $main,
+                'name' => isset($meta['name']) ? $meta['name'] : $main,
+                'title' => isset($meta['title']) ? $meta['title'] : $main,
+                'code' => isset($meta['code']) ? $meta['code'] : dle_ml_code_from_folder($main),
+                'icon' => isset($meta['icon']) ? $meta['icon'] : '',
+                'enabled' => 1,
+                'installed' => isset($meta['installed']) ? intval($meta['installed']) : 0,
+            );
+        } else {
+            foreach ($all_languages as $folder => $meta) {
+                $languages[$folder] = array(
+                    'folder' => $folder,
+                    'name' => isset($meta['name']) ? $meta['name'] : $folder,
+                    'title' => isset($meta['title']) ? $meta['title'] : $folder,
+                    'code' => isset($meta['code']) ? $meta['code'] : dle_ml_code_from_folder($folder),
+                    'icon' => isset($meta['icon']) ? $meta['icon'] : '',
+                    'enabled' => 1,
+                    'installed' => isset($meta['installed']) ? intval($meta['installed']) : 0,
+                );
+                break;
+            }
+        }
     }
 
     $cache = $languages;
@@ -340,7 +532,25 @@ function dle_ml_current_url_no_lang_prefix() {
 
     if (!$path) $path = '/';
 
-    $path = preg_replace('#^/(az|en|ru)(/|$)#i', '/', $path);
+    $codes = array();
+    $languages = dle_ml_get_languages();
+
+    foreach ($languages as $meta) {
+        if (!isset($meta['code'])) continue;
+        $code = strtolower(trim((string)$meta['code']));
+        if (!$code) continue;
+        $codes[$code] = $code;
+    }
+
+    if (count($codes)) {
+        $quoted = array();
+        foreach ($codes as $code) {
+            $quoted[] = preg_quote($code, '#');
+        }
+
+        $path = preg_replace('#^/(' . implode('|', $quoted) . ')(/|$)#i', '/', $path);
+    }
+
     $path = preg_replace('#/+#', '/', $path);
 
     if ($path == '') $path = '/';

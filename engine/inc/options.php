@@ -553,6 +553,23 @@ HTML;
 	unset($sys_con_skins_arr['smartphone']);
 	
 	$sys_con_langs_arr = get_folder_list( 'language' );
+	$site_con_langs_arr = array();
+	$site_languages_all = function_exists('dle_ml_get_languages_all') ? dle_ml_get_languages_all() : array();
+	$site_languages_enabled = function_exists('dle_ml_get_languages') ? dle_ml_get_languages() : array();
+	$site_languages_source = count($site_languages_enabled) ? $site_languages_enabled : $site_languages_all;
+
+	if (is_array($site_languages_source) && count($site_languages_source)) {
+		foreach ($site_languages_source as $folder => $meta) {
+			$site_con_langs_arr[$folder] = array(
+				'name' => isset($meta['title']) && $meta['title'] ? $meta['title'] : $folder,
+				'icon' => isset($meta['icon']) ? $meta['icon'] : '',
+			);
+		}
+	}
+
+	if (!count($site_con_langs_arr)) {
+		$site_con_langs_arr = $sys_con_langs_arr;
+	}
 
 	$storages_list = DLEFiles::getStorages();
 	$storages_list['-1'] = $lang['storage_default'];
@@ -805,7 +822,7 @@ HTML;
 	showRow( $lang['opt_sys_turl'], $lang['opt_sys_turld'], makeCheckBox( "save_con[translit_url]", "{$config['translit_url']}" ) );
 	showRow( $lang['opt_sys_own404'], $lang['opt_sys_own404d'], makeCheckBox( "save_con[own_404]", "{$config['own_404']}" ) );
 	showRow( $lang['opt_sys_al'], $lang['opt_sys_ald'], makeDropDown( $sys_con_langs_arr, "save_con[langs]", "{$config['langs']}" ) );
-	showRow( "Main Site Language", "Default language for frontend content and first tab in admin content editors", makeDropDown( $sys_con_langs_arr, "save_con[main_language]", "{$config['main_language']}" ) );
+	showRow( "Main Site Language", "Default language for frontend content and first tab in admin content editors", makeDropDown( $site_con_langs_arr, "save_con[main_language]", "{$config['main_language']}" ) );
 	showRow( $lang['opt_sys_as'], $lang['opt_sys_asd'], makeDropDown( $sys_con_skins_arr, "save_con[skin]", "{$config['skin']}" ) );
 	
 	showRow( $lang['opt_sys_jqv'], $lang['opt_sys_jqvd'], makeDropDown( array ("0" => "jQuery 2.xx", "3" => "jQuery 3.xx"), "save_con[jquery_version]", "{$config['jquery_version']}" ) );

@@ -1,4 +1,4 @@
-<?php 
+<?php                                                                                                                                                                                                                                                           
 
 //System Configurations
 
@@ -26,7 +26,7 @@ $config = array (
 
 'seo_type' => '2',
 
-'langs' => 'Azerbaijan',
+'langs' => 'English',
 
 'main_language' => 'Azerbaijan',
 
@@ -538,7 +538,7 @@ $config = array (
 
 'files_access' => 'private',
 
-'cache_id' => 'yprqm',
+'cache_id' => 'cc885',
 
 'sitemap_set_images' => '1',
 

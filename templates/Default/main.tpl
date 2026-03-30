@@ -316,7 +316,11 @@
 		<main class="pt-32 md:pt-28">
 			<section class="max-w-7xl mx-auto px-4 md:px-8 pb-8">
 				<div class="border border-atelier_outline/60 bg-atelier_low p-6">
-					[category=4,5,6]{filter}[/category]
+					[category=4,5,6]
+					<img src="{category-icon}" alt="">
+					<img src="{category-icon-2}" alt="">
+					<img src="{category-icon-3}" alt="">
+					{filter}[/category]
 					<div class="auto-content mt-4">
 						{info}
 						{content}

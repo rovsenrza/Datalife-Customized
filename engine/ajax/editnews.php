@@ -146,7 +146,7 @@ if( $_REQUEST['action'] == "edit" ) {
 		$fieldvalue = str_ireplace( "&#123;short-story", "{short-story", $fieldvalue );
 		$fieldvalue = str_ireplace( "&#123;full-story", "{full-story", $fieldvalue );
 
-		if ($value[8] OR $value[6] OR $value[3] == "image" OR $value[3] == "imagegalery" OR $value[3] == "file" OR $value[3] == "datetime" OR $value[3] == "select") {
+		if ($value[8] OR $value[6] OR $value[3] == "image" OR $value[3] == "imagegalery" OR $value[3] == "file" OR $value[3] == "multifile" OR $value[3] == "datetime" OR $value[3] == "select") {
 			
 			$fieldvalue = html_entity_decode(stripslashes($fieldvalue), ENT_QUOTES, 'UTF-8' );
 			$fieldvalue = htmlspecialchars($fieldvalue, ENT_QUOTES, 'UTF-8' );
@@ -766,9 +766,15 @@ HTML;
 
 			$xfbuffer .= "<div id=\"{$holderid}\" class=\"xfieldsrow\"><div class=\"xfieldscolleft\">{$value[1]}:</div><div class=\"xfieldscolright\"><div id=\"xfupload_{$fieldname}\"></div><input type=\"hidden\" name=\"xfield[$fieldname]\" id=\"xf_$fieldname\" value=\"{$fieldvalue}\" /><script>{$uploadscript}</script></div></div>";
 
-		} elseif ($value[3] == "video" OR $value[3] == "audio") {
+		} elseif ($value[3] == "video" OR $value[3] == "audio" OR $value[3] == "multifile") {
 
-			$max_file_size = (int)$value[32] * 1024;
+			if ($value[3] == "multifile") {
+				$max_file_size = (int)$value[15] * 1024;
+			} else {
+				$max_file_size = (int)$value[32] * 1024;
+			}
+
+			$delete_function_name = ($value[3] == "multifile") ? "xfmultifiledelete_{$fieldcount}" : "xfplaylistdelete_{$fieldcount}";
 
 			if ($fieldvalue) {
 				$fieldvalue_arr = explode(',', $fieldvalue);
@@ -820,7 +826,8 @@ HTML;
 
 					$xf_id = md5($temp_value);
 
-					$up_files[] = "<div class=\"file-preview-card uploadedfile\" id=\"xf_{$xf_id}\" data-id=\"{$temp_value}\" data-alt=\"{$temp_alt}\"><div class=\"active-ribbon\"><span><i class=\"mediaupload-icon mediaupload-icon-ok\"></i></span></div><div class=\"file-content select-disable\" style=\"background-color: {$b_color};\"><div class=\"file-ext\">{$file_type}</div>{$file_icon}</div><div class=\"file-footer\"><div class=\"file-footer-caption\"><div class=\"file-caption-info\" rel=\"tooltip\" title=\"{$filename}\">{$base_name}</div><div class=\"file-size-info\">({$temp_size})</div></div><div class=\"file-footer-bottom\"><div class=\"file-preview\"><a onclick=\"xfaddalt(\\'" . $xf_id . "\\', \\'" . $fieldname . "\\');return false;\" href=\"#\" rel=\"tooltip\" title=\"{$lang['xf_img_descr']}\"><i class=\"mediaupload-icon mediaupload-icon-edit\"></i></a></div><div class=\"file-delete\"><a onclick=\"xfplaylistdelete_{$fieldcount}(\\'" . $fieldname . "\\',\\'" . $temp_id . "\\', \\'" . $xf_id . "\\');return false;\" href=\"#\"><i class=\"mediaupload-icon mediaupload-icon-trash\"></i></a></div></div></div></div>";
+					$delete_function_name = ($value[3] == "multifile") ? "xfmultifiledelete_{$fieldcount}" : "xfplaylistdelete_{$fieldcount}";
+					$up_files[] = "<div class=\"file-preview-card uploadedfile\" id=\"xf_{$xf_id}\" data-id=\"{$temp_value}\" data-alt=\"{$temp_alt}\"><div class=\"active-ribbon\"><span><i class=\"mediaupload-icon mediaupload-icon-ok\"></i></span></div><div class=\"file-content select-disable\" style=\"background-color: {$b_color};\"><div class=\"file-ext\">{$file_type}</div>{$file_icon}</div><div class=\"file-footer\"><div class=\"file-footer-caption\"><div class=\"file-caption-info\" rel=\"tooltip\" title=\"{$filename}\">{$base_name}</div><div class=\"file-size-info\">({$temp_size})</div></div><div class=\"file-footer-bottom\"><div class=\"file-preview\"><a onclick=\"xfaddalt(\\'" . $xf_id . "\\', \\'" . $fieldname . "\\');return false;\" href=\"#\" rel=\"tooltip\" title=\"{$lang['xf_img_descr']}\"><i class=\"mediaupload-icon mediaupload-icon-edit\"></i></a></div><div class=\"file-delete\"><a onclick=\"{$delete_function_name}(\\'" . $fieldname . "\\',\\'" . $temp_id . "\\', \\'" . $xf_id . "\\');return false;\" href=\"#\"><i class=\"mediaupload-icon mediaupload-icon-trash\"></i></a></div></div></div></div>";
 				}
 
 				$totaluploadedfiles = count($up_files);
@@ -844,6 +851,9 @@ HTML;
 			if ($value[3] == "audio") {
 				$allowed_files = "mp3,flac,aac,ogg";
 				$button_text = $lang['xfield_xfaudio'];
+			} elseif ($value[3] == "multifile") {
+				$allowed_files = strtolower($value[14]);
+				$button_text = $lang['xfield_xfif'];
 			} else {
 				$allowed_files = "mp4,m4v,m4a,mov,webm,m3u8,mkv";
 				$button_text = $lang['xfield_xfvideo'];
@@ -853,8 +863,7 @@ HTML;
 	var maxallowfiles_{$fieldcount} = {$value[31]};
 	var totaluploaded_{$fieldcount} = {$totaluploadedfiles};
 	var totalqueue_{$fieldcount} = 0;
-	
-	function xfplaylistdelete_{$fieldcount} ( xfname, xfvalue, id )
+	function {$delete_function_name} ( xfname, xfvalue, id )
 	{
 		DLEconfirmDelete( '{$lang['file_delete']}', '{$lang['p_info']}', function () {
 		

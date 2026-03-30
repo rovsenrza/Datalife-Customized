@@ -84,7 +84,7 @@ if ($is_loged_in) {
 		$title = htmlspecialchars($meta['title'], ENT_QUOTES, 'UTF-8');
 		$site_lang_change .= "<a href=\"#\" data-site-lang=\"{$folder}\">";
 
-		if( isset($meta['icon']) AND $meta['icon'] ) {
+		if( isset($meta['icon']) AND $meta['icon'] AND file_exists(ROOT_DIR . "/language/{$folder}/{$meta['icon']}") ) {
 			$site_lang_change .= "<img src=\"language/{$folder}/{$meta['icon']}\">";
 
 			if( $folder == $site_main_language ) {
@@ -255,6 +255,12 @@ HTML;
 											'name' => 'Filters',
 											'url' => "?mod=filters",
 											'mod' => "filters",
+											'access' => "admin"
+								),
+								array (
+											'name' => isset($lang['opt_site_languages']) ? $lang['opt_site_languages'] : 'Site languages',
+											'url' => "?mod=site_languages",
+											'mod' => "site_languages",
 											'access' => "admin"
 								),
 

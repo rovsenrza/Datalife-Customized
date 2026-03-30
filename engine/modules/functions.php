@@ -998,6 +998,81 @@ function buildCategoryPaths($categories) {
     return $result;
 }
 
+function dle_get_category_additional_icons($category_id) {
+	$category_id = intval($category_id);
+	if ($category_id < 1) return array();
+
+	static $icons_map = null;
+
+	if ($icons_map === null) {
+		$icons_map = array();
+		$path = ENGINE_DIR . '/data/category_additional_icons.json';
+
+		if (file_exists($path)) {
+			$data = @file_get_contents($path);
+			if ($data !== false) {
+				$decoded = json_decode($data, true);
+				if (is_array($decoded)) {
+					foreach ($decoded as $cat_id => $icons) {
+						$cat_id = intval($cat_id);
+						if ($cat_id < 1 || !is_array($icons)) continue;
+
+						$temp = array();
+						foreach ($icons as $icon) {
+							$icon = trim((string)$icon);
+							if ($icon === '') continue;
+							$temp[$icon] = $icon;
+						}
+
+						if (count($temp)) {
+							$icons_map[$cat_id] = array_values($temp);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return isset($icons_map[$category_id]) && is_array($icons_map[$category_id]) ? $icons_map[$category_id] : array();
+}
+
+function dle_set_category_additional_icon_tags($tpl, $category_id) {
+	$icons = dle_get_category_additional_icons($category_id);
+
+	if (count($icons)) {
+		$tpl->set('{category-icons}', implode(',', $icons));
+		$tpl->set('[category-icons]', "");
+		$tpl->set('[/category-icons]', "");
+		$tpl->set_block("'\\[not-category-icons\\](.*?)\\[/not-category-icons\\]'si", "");
+	} else {
+		$tpl->set('{category-icons}', "");
+		$tpl->set('[not-category-icons]', "");
+		$tpl->set('[/not-category-icons]', "");
+		$tpl->set_block("'\\[category-icons\\](.*?)\\[/category-icons\\]'si", "");
+	}
+
+	for ($i = 2; $i <= 10; $i++) {
+		$tag = '{category-icon-' . $i . '}';
+		$open = '[category-icon-' . $i . ']';
+		$close = '[/category-icon-' . $i . ']';
+		$not_open = '[not-category-icon-' . $i . ']';
+		$not_close = '[/not-category-icon-' . $i . ']';
+		$index = $i - 2;
+
+		if (isset($icons[$index])) {
+			$tpl->set($tag, $icons[$index]);
+			$tpl->set($open, "");
+			$tpl->set($close, "");
+			$tpl->set_block("'\\[not-category-icon-" . $i . "\\](.*?)\\[/not-category-icon-" . $i . "\\]'si", "");
+		} else {
+			$tpl->set($tag, "");
+			$tpl->set($not_open, "");
+			$tpl->set($not_close, "");
+			$tpl->set_block("'\\[category-icon-" . $i . "\\](.*?)\\[/category-icon-" . $i . "\\]'si", "");
+		}
+	}
+}
+
 function set_vars($file, $data) {
 	
 	$file = totranslit($file, true, false);

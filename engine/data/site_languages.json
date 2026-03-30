@@ -1,0 +1,26 @@
+[
+    {
+        "folder": "Azerbaijan",
+        "name": "Azerbaijan",
+        "title": "Azerbaijani",
+        "code": "az",
+        "icon": "icon.png",
+        "enabled": 1
+    },
+    {
+        "folder": "English",
+        "name": "English",
+        "title": "English",
+        "code": "en",
+        "icon": "icon.png",
+        "enabled": 1
+    },
+    {
+        "folder": "Russian",
+        "name": "Russian",
+        "title": "Русский",
+        "code": "ru",
+        "icon": "icon.png",
+        "enabled": 1
+    }
+]

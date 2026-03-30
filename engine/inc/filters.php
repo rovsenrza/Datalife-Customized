@@ -366,6 +366,12 @@ $no_filters = dle_filters_t('no_filters');
 $confirm_delete = htmlspecialchars(dle_filters_t('confirm_delete'), ENT_QUOTES, 'UTF-8');
 
 echo <<<HTML
+<style>
+	.filters-categories-select {
+		height: auto !important;
+		min-height: 12rem !important;
+	}
+</style>
 <form action="?mod=filters&action=save" method="post" class="p-15">
 	<input type="hidden" name="user_hash" value="{$dle_login_hash}">
 	<input type="hidden" name="filter[id]" value="{$id_value}">
@@ -381,7 +387,7 @@ echo <<<HTML
 				<div class="col-md-8"><label>{$label_title} (AZ/EN/RU)</label>{$title_i18n_inputs}</div>
 			</div>
 			<div class="row" style="margin-bottom:15px;">
-				<div class="col-md-8"><label>{$label_categories}</label><select name="filter[categories][]" class="form-control" multiple size="8">{$categories_html}</select></div>
+				<div class="col-md-8"><label>{$label_categories}</label><select name="filter[categories][]" class="form-control filters-categories-select" multiple size="8">{$categories_html}</select></div>
 				<div class="col-md-4" style="padding-top:30px;"><label><input type="checkbox" name="filter[enabled]" value="1"{$enabled_checked}> {$label_enabled}</label></div>
 			</div>
 			<div><button type="submit" class="btn bg-teal btn-raised">{$btn_save}</button> <a href="?mod=filters" class="btn btn-default btn-raised">{$btn_reset}</a></div>

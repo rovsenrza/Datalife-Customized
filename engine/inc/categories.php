@@ -200,6 +200,113 @@ function clear_url_dir( $var ) {
 
 }
 
+function dle_category_additional_icons_file() {
+	return ENGINE_DIR . '/data/category_additional_icons.json';
+}
+
+function dle_category_clean_icon($value) {
+	if (is_array($value)) return '';
+	return htmlspecialchars(strip_tags(stripslashes((string)$value)), ENT_QUOTES, 'UTF-8');
+}
+
+function dle_category_collect_additional_icons($input, $primary_icon = '') {
+	$items = array();
+	$primary_icon = trim((string)$primary_icon);
+
+	if (!is_array($input)) {
+		$input = array($input);
+	}
+
+	foreach ($input as $item) {
+		$item = trim(dle_category_clean_icon($item));
+		if ($item === '') continue;
+		if ($primary_icon !== '' && $item === $primary_icon) continue;
+		$items[$item] = $item;
+	}
+
+	return array_values($items);
+}
+
+function dle_category_load_additional_icons_map() {
+	$path = dle_category_additional_icons_file();
+
+	if (!file_exists($path)) return array();
+
+	$data = @file_get_contents($path);
+	if (!$data) return array();
+
+	$decoded = json_decode($data, true);
+	if (!is_array($decoded)) return array();
+
+	$result = array();
+
+	foreach ($decoded as $cat_id => $icons) {
+		$cat_id = intval($cat_id);
+		if ($cat_id < 1) continue;
+		$result[$cat_id] = dle_category_collect_additional_icons($icons);
+		if (!count($result[$cat_id])) unset($result[$cat_id]);
+	}
+
+	return $result;
+}
+
+function dle_category_save_additional_icons_map($map) {
+	$path = dle_category_additional_icons_file();
+	$clean_map = array();
+
+	if (!is_array($map)) $map = array();
+
+	foreach ($map as $cat_id => $icons) {
+		$cat_id = intval($cat_id);
+		if ($cat_id < 1) continue;
+		$icons = dle_category_collect_additional_icons($icons);
+		if (!count($icons)) continue;
+		$clean_map[$cat_id] = $icons;
+	}
+
+	if (!count($clean_map)) {
+		if (file_exists($path)) @unlink($path);
+		return;
+	}
+
+	$json = json_encode($clean_map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+	if ($json !== false) {
+		@file_put_contents($path, $json, LOCK_EX);
+	}
+}
+
+function dle_category_get_additional_icons($cat_id) {
+	$cat_id = intval($cat_id);
+	if ($cat_id < 1) return array();
+	$map = dle_category_load_additional_icons_map();
+	return isset($map[$cat_id]) && is_array($map[$cat_id]) ? $map[$cat_id] : array();
+}
+
+function dle_category_set_additional_icons($cat_id, $icons) {
+	$cat_id = intval($cat_id);
+	if ($cat_id < 1) return;
+	$map = dle_category_load_additional_icons_map();
+	$icons = dle_category_collect_additional_icons($icons);
+
+	if (count($icons)) {
+		$map[$cat_id] = $icons;
+	} else {
+		unset($map[$cat_id]);
+	}
+
+	dle_category_save_additional_icons_map($map);
+}
+
+function dle_category_delete_additional_icons($cat_id) {
+	$cat_id = intval($cat_id);
+	if ($cat_id < 1) return;
+	$map = dle_category_load_additional_icons_map();
+	if (isset($map[$cat_id])) {
+		unset($map[$cat_id]);
+		dle_category_save_additional_icons_map($map);
+	}
+}
+
 
 if( $action == "add" ) {
 	
@@ -222,7 +329,9 @@ if( $action == "add" ) {
 	$cat_name_raw = htmlspecialchars( strip_tags( stripslashes($_POST['cat_name'] ) ), ENT_QUOTES, 'UTF-8');
 	$cat_name  = $db->safesql( $cat_name_raw );
 	$skin_name = trim( totranslit($_POST['skin_name'], false, false) );
-	$cat_icon  = $db->safesql(  htmlspecialchars( strip_tags( stripslashes($_POST['cat_icon']) ), ENT_QUOTES, 'UTF-8') );
+	$cat_icon_raw = dle_category_clean_icon(isset($_POST['cat_icon']) ? $_POST['cat_icon'] : '');
+	$cat_icon  = $db->safesql($cat_icon_raw);
+	$cat_extra_icons = dle_category_collect_additional_icons(isset($_POST['cat_icons']) ? $_POST['cat_icons'] : array(), $cat_icon_raw);
 	$show_sub = isset($_POST['show_sub']) ? intval($_POST['show_sub']) : 0;
 	$allow_rss = isset($_POST['allow_rss']) ? intval($_POST['allow_rss']) : 0;
 	$disable_search = isset($_POST['disable_search']) ? intval($_POST['disable_search']) : 0;
@@ -319,6 +428,7 @@ if( $action == "add" ) {
 	
 	$db->query( "INSERT INTO " . PREFIX . "_category (parentid, name, alt_name, icon, skin, descr, keywords, news_sort, news_msort, news_number, short_tpl, full_tpl, metatitle, show_sub, allow_rss, fulldescr, disable_search, disable_main, disable_rating, disable_comments, enable_dzen, enable_turbo, rating_type, schema_org, disable_index) values ('$category', '$cat_name', '$alt_cat_name', '$cat_icon', '$skin_name', '$description', '$keywords', '$news_sort', '$news_msort', '$news_number', '$short_tpl', '$full_tpl', '$meta_title', '$show_sub', '$allow_rss', '$fulldescr', '$disable_search', '$disable_main', '$disable_rating', '$disable_comments', '$enable_dzen', '$enable_turbo', '$rating_type', '$schema_org', '$disable_index')" );
 	$new_category_id = $db->insert_id();
+	dle_category_set_additional_icons($new_category_id, $cat_extra_icons);
 
 	dle_ml_save_category_translation($new_category_id, $ml_main_folder, array(
 		'name' => $cat_name_raw,
@@ -475,6 +585,7 @@ if( $action == "add" ) {
 			}
 			
 			$db->query( "DELETE FROM " . PREFIX . "_category WHERE id = '" . $subcategory['id'] . "'" );
+			dle_category_delete_additional_icons($subcategory['id']);
 		}
 		
 	}
@@ -591,6 +702,7 @@ if( $action == "add" ) {
 		if( $delete_allowed ) {
 			
 			$db->query( "DELETE FROM " . PREFIX . "_category WHERE id='{$catid}'" );
+			dle_category_delete_additional_icons($catid);
 				
 			DeleteSubcategories( $catid );
 				
@@ -618,6 +730,7 @@ $(function(){
 	} else {
 		
 		$db->query( "DELETE FROM " . PREFIX . "_category WHERE id='{$catid}'" );
+		dle_category_delete_additional_icons($catid);
 		
 		DeleteSubcategories( $catid );
 		
@@ -686,6 +799,12 @@ $(function(){
 	$row['fulldescr'] = $parse->decodeBBCodes( $row['fulldescr'], false );
 
 	$ml_name_inputs_html = '';
+	$category_extra_icons = dle_category_get_additional_icons($catid);
+	$category_extra_icons_rows = '';
+	foreach ($category_extra_icons as $extra_icon_value) {
+		$extra_icon_value = htmlspecialchars($extra_icon_value, ENT_QUOTES, 'UTF-8');
+		$category_extra_icons_rows .= "<div class=\"input-group cat-extra-icon-item mt-10\"><input class=\"form-control\" type=\"text\" dir=\"auto\" name=\"cat_icons[]\" maxlength=\"200\" value=\"{$extra_icon_value}\"><span class=\"input-group-btn\"><button type=\"button\" class=\"btn bg-teal btn-sm btn-raised js-cat-upload-extra-icon\" style=\"min-width:140px;\"><i class=\"fa fa-upload position-left\"></i>{$lang['xfield_xfim']}</button></span><span class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger btn-sm js-cat-remove-icon\"><i class=\"fa fa-trash-o\"></i></button></span></div>";
+	}
 
 	foreach($ml_extra_languages as $ml_folder => $ml_meta) {
 		$ml_name = isset($ml_translations_data[$ml_folder]['name']) ? $ml_translations_data[$ml_folder]['name'] : '';
@@ -729,6 +848,14 @@ $(function(){
 		  <label class="control-label col-md-2 col-sm-3">{$lang['cat_addicon']}</label>
 		  <div id="cat-uploader" class="col-md-10 col-sm-9">
 			<input class="form-control width-400" value="{$row['icon']}" maxlength="200" type="text" dir="auto" name="cat_icon"><div id="file-uploader" class="mt-10 visible-md-inline-block visible-lg-inline-block position-right"></div><i class="help-button visible-lg-inline-block text-primary-600 fa fa-question-circle position-right" data-rel="popover" data-trigger="hover" data-placement="auto right" data-content="{$lang['hint_caticon']}"></i>
+		  </div>
+		 </div>
+		<div class="form-group">
+		  <label class="control-label col-md-2 col-sm-3">{$lang['cat_addicons']}</label>
+		  <div class="col-md-10 col-sm-9">
+			<div id="cat-extra-icons-edit" class="cat-extra-icons-list">{$category_extra_icons_rows}</div>
+			<button type="button" class="btn btn-default btn-sm btn-raised mt-10 js-cat-add-icon" data-target="#cat-extra-icons-edit"><i class="fa fa-plus-circle position-left"></i>{$lang['cat_addicon_btn']}</button>
+			<div class="text-muted text-size-small mt-5">{$lang['hint_caticons']}</div>
 		  </div>
 		 </div>
 		<div class="form-group">
@@ -844,6 +971,110 @@ $(function(){
 </form>
 <script>
 jQuery(function($){
+
+	function getExtraIconRow() {
+		return '<div class="input-group cat-extra-icon-item mt-10"><input class="form-control" type="text" dir="auto" name="cat_icons[]" maxlength="200" value=""><span class="input-group-btn"><button type="button" class="btn bg-teal btn-sm btn-raised js-cat-upload-extra-icon" style="min-width:140px;"><i class="fa fa-upload position-left"></i>{$lang['xfield_xfim']}</button></span><span class="input-group-btn"><button type="button" class="btn btn-danger btn-sm js-cat-remove-icon"><i class="fa fa-trash-o"></i></button></span></div>';
+	}
+
+	function initExtraRowUploader(btn) {
+		if (!btn || !btn.length || btn.data('uploader-init')) return;
+
+		var buttonId = btn.attr('id');
+		if (!buttonId) {
+			buttonId = 'extra-upload-' + (new Date().getTime()) + '-' + Math.floor(Math.random() * 10000);
+			btn.attr('id', buttonId);
+		}
+
+		var rowEl = btn.closest('.cat-extra-icon-item');
+		var inputEl = rowEl.find('input[name="cat_icons[]"]');
+		var defaultButtonTitle = btn.text();
+
+		var extraUploader = new plupload.Uploader({
+			runtimes : 'html5',
+			file_data_name: "qqfile",
+			browse_button: buttonId,
+			container: rowEl.get(0),
+			url: "engine/ajax/controller.php?mod=upload",
+			multipart_params: {"subaction" : "upload", "news_id" : "0", "area" : "adminupload", "userdir" : "icons", "local_driver" : "1", "user_hash" : "{$dle_login_hash}"},
+			multi_selection: false,
+			filters : {
+				max_file_size : '{$max_file_size}',
+				mime_types: [
+					{title : "Image files", extensions : "gif,jpg,jpeg,png,bmp,webp,avif"}
+				]
+			},
+			init: {
+				FilesAdded: function(up) {
+					btn.text('0%');
+					up.start();
+				},
+				UploadProgress: function(up, file) {
+					btn.text(file.percent + '%');
+				},
+				FileUploaded: function(up, file, result) {
+					var response = '';
+					try {
+						response = JSON.parse(result.response);
+					} catch (e) {}
+
+					if (result.status == 200 && response.success) {
+						inputEl.val("{$home_url}uploads/icons/" + response.uploaded_filename);
+					} else if (response && response.error) {
+						DLEPush.error(response.error);
+					} else {
+						DLEPush.error('Upload error');
+					}
+
+					btn.text(defaultButtonTitle);
+				},
+				Error: function(up, err) {
+					var type_err = '{$lang['media_upload_st11']}';
+					var size_err = '{$lang['media_upload_st12']}';
+
+					if (err.file) {
+						type_err = type_err.replace('{file}', err.file.name);
+						size_err = size_err.replace('{file}', err.file.name);
+					}
+					type_err = type_err.replace('{extensions}', up.settings.filters.mime_types[0].extensions);
+					size_err = size_err.replace('{sizeLimit}', plupload.formatSize(up.settings.filters.max_file_size));
+
+					if(err.code == '-600') {
+						DLEPush.error(size_err);
+					} else if(err.code == '-601') {
+						DLEPush.error(type_err);
+					} else {
+						DLEPush.error(err.message);
+					}
+
+					btn.text(defaultButtonTitle);
+				}
+			}
+		});
+
+		extraUploader.init();
+		btn.data('uploader-init', true);
+	}
+
+	$(document).on('click', '.js-cat-add-icon', function(e){
+		e.preventDefault();
+		var target = $(this).data('target');
+		if (!target) return;
+		var container = $(target);
+		if (!container.length) return;
+		container.append(getExtraIconRow());
+		var rowEl = container.find('.cat-extra-icon-item').last();
+		rowEl.find('input[name="cat_icons[]"]').trigger('focus');
+		initExtraRowUploader(rowEl.find('.js-cat-upload-extra-icon'));
+	});
+
+	$(document).on('click', '.js-cat-remove-icon', function(e){
+		e.preventDefault();
+		$(this).closest('.cat-extra-icon-item').remove();
+	});
+
+	$('.js-cat-upload-extra-icon').each(function(){
+		initExtraRowUploader($(this));
+	});
 
 	$('#file-uploader').html('<div class="qq-uploader"><div id="uploadedfile" class="qq-upload-button btn bg-teal btn-sm btn-raised position-left" style="width: auto;">{$lang['xfield_xfim']}</div></div>');
 
@@ -982,7 +1213,9 @@ HTML;
 	$cat_name_raw  = htmlspecialchars( strip_tags( stripslashes($_POST['cat_name'] ) ), ENT_QUOTES, 'UTF-8');
 	$cat_name  = $db->safesql( $cat_name_raw );
 	$skin_name = trim( totranslit($_POST['skin_name'], false, false) );
-	$cat_icon  = $db->safesql(  htmlspecialchars( strip_tags( stripslashes($_POST['cat_icon']) ), ENT_QUOTES, 'UTF-8') );
+	$cat_icon_raw = dle_category_clean_icon(isset($_POST['cat_icon']) ? $_POST['cat_icon'] : '');
+	$cat_icon  = $db->safesql($cat_icon_raw);
+	$cat_extra_icons = dle_category_collect_additional_icons(isset($_POST['cat_icons']) ? $_POST['cat_icons'] : array(), $cat_icon_raw);
 
 	if (trim($_POST['alt_cat_name'])) {
 
@@ -1071,6 +1304,7 @@ HTML;
 	}
 
 	$db->query( "UPDATE " . PREFIX . "_category SET parentid='{$parentid}', name='{$cat_name}', alt_name='{$alt_cat_name}', icon='{$cat_icon}', skin='{$skin_name}', descr='{$description}', keywords='{$keywords}', news_sort='{$news_sort}', news_msort='{$news_msort}', news_number='{$news_number}', short_tpl='{$short_tpl}', full_tpl='{$full_tpl}', metatitle='{$meta_title}', show_sub='{$show_sub}', allow_rss='{$allow_rss}', fulldescr='{$fulldescr}', disable_search='{$disable_search}', disable_main='{$disable_main}', disable_rating='{$disable_rating}', disable_comments='{$disable_comments}', enable_dzen='$enable_dzen', enable_turbo='{$enable_turbo}', rating_type='{$rating_type}', schema_org='{$schema_org}', disable_index='{$disable_index}' WHERE id='{$catid}'" );
+	dle_category_set_additional_icons($catid, $cat_extra_icons);
 
 	dle_ml_save_category_translation($catid, $ml_main_folder, array(
 		'name' => $cat_name_raw,
@@ -1172,6 +1406,16 @@ echo <<<HTML
 				<div class="col-sm-6">
 					<label>{$lang['cat_parent']}</label>
 					<select class="uniform" name="category" data-width="100%" data-live-search="true" data-none-results-text="{$lang['addnews_cat_fault']}">{$categorylist}</select>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="row">
+				<div class="col-sm-12">
+					<label>{$lang['cat_addicons']}</label>
+					<div id="cat-extra-icons-add" class="cat-extra-icons-list"></div>
+					<button type="button" class="btn btn-default btn-sm btn-raised mt-10 js-cat-add-icon" data-target="#cat-extra-icons-add"><i class="fa fa-plus-circle position-left"></i>{$lang['cat_addicon_btn']}</button>
+					<div class="text-muted text-size-small mt-5">{$lang['hint_caticons']}</div>
 				</div>
 			</div>
 		</div>
@@ -1296,6 +1540,110 @@ echo <<<HTML
 </div>
 <script>
 jQuery(function($){
+
+	function getExtraIconRow() {
+		return '<div class="input-group cat-extra-icon-item mt-10"><input class="form-control" type="text" dir="auto" name="cat_icons[]" maxlength="200" value=""><span class="input-group-btn"><button type="button" class="btn bg-teal btn-sm btn-raised js-cat-upload-extra-icon" style="min-width:140px;"><i class="fa fa-upload position-left"></i>{$lang['xfield_xfim']}</button></span><span class="input-group-btn"><button type="button" class="btn btn-danger btn-sm js-cat-remove-icon"><i class="fa fa-trash-o"></i></button></span></div>';
+	}
+
+	function initExtraRowUploader(btn) {
+		if (!btn || !btn.length || btn.data('uploader-init')) return;
+
+		var buttonId = btn.attr('id');
+		if (!buttonId) {
+			buttonId = 'extra-upload-' + (new Date().getTime()) + '-' + Math.floor(Math.random() * 10000);
+			btn.attr('id', buttonId);
+		}
+
+		var rowEl = btn.closest('.cat-extra-icon-item');
+		var inputEl = rowEl.find('input[name="cat_icons[]"]');
+		var defaultButtonTitle = btn.text();
+
+		var extraUploader = new plupload.Uploader({
+			runtimes : 'html5',
+			file_data_name: "qqfile",
+			browse_button: buttonId,
+			container: rowEl.get(0),
+			url: "engine/ajax/controller.php?mod=upload",
+			multipart_params: {"subaction" : "upload", "news_id" : "0", "area" : "adminupload", "userdir" : "icons", "local_driver" : "1", "user_hash" : "{$dle_login_hash}"},
+			multi_selection: false,
+			filters : {
+				max_file_size : '{$max_file_size}',
+				mime_types: [
+					{title : "Image files", extensions : "gif,jpg,jpeg,png,bmp,webp,avif"}
+				]
+			},
+			init: {
+				FilesAdded: function(up) {
+					btn.text('0%');
+					up.start();
+				},
+				UploadProgress: function(up, file) {
+					btn.text(file.percent + '%');
+				},
+				FileUploaded: function(up, file, result) {
+					var response = '';
+					try {
+						response = JSON.parse(result.response);
+					} catch (e) {}
+
+					if (result.status == 200 && response.success) {
+						inputEl.val("{$home_url}uploads/icons/" + response.uploaded_filename);
+					} else if (response && response.error) {
+						DLEPush.error(response.error);
+					} else {
+						DLEPush.error('Upload error');
+					}
+
+					btn.text(defaultButtonTitle);
+				},
+				Error: function(up, err) {
+					var type_err = '{$lang['media_upload_st11']}';
+					var size_err = '{$lang['media_upload_st12']}';
+
+					if (err.file) {
+						type_err = type_err.replace('{file}', err.file.name);
+						size_err = size_err.replace('{file}', err.file.name);
+					}
+					type_err = type_err.replace('{extensions}', up.settings.filters.mime_types[0].extensions);
+					size_err = size_err.replace('{sizeLimit}', plupload.formatSize(up.settings.filters.max_file_size));
+
+					if(err.code == '-600') {
+						DLEPush.error(size_err);
+					} else if(err.code == '-601') {
+						DLEPush.error(type_err);
+					} else {
+						DLEPush.error(err.message);
+					}
+
+					btn.text(defaultButtonTitle);
+				}
+			}
+		});
+
+		extraUploader.init();
+		btn.data('uploader-init', true);
+	}
+
+	$(document).on('click', '.js-cat-add-icon', function(e){
+		e.preventDefault();
+		var target = $(this).data('target');
+		if (!target) return;
+		var container = $(target);
+		if (!container.length) return;
+		container.append(getExtraIconRow());
+		var rowEl = container.find('.cat-extra-icon-item').last();
+		rowEl.find('input[name="cat_icons[]"]').trigger('focus');
+		initExtraRowUploader(rowEl.find('.js-cat-upload-extra-icon'));
+	});
+
+	$(document).on('click', '.js-cat-remove-icon', function(e){
+		e.preventDefault();
+		$(this).closest('.cat-extra-icon-item').remove();
+	});
+
+	$('.js-cat-upload-extra-icon').each(function(){
+		initExtraRowUploader($(this));
+	});
 
 
 	$('#file-uploader').html('<div class="qq-uploader"><div id="uploadedfile" class="qq-upload-button btn bg-teal btn-sm btn-raised position-left" style="width: auto;">{$lang['xfield_xfim']}</div></div>');

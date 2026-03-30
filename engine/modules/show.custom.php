@@ -504,6 +504,7 @@ while ( $row = $db->get_row( $sql_result ) ) {
 		$tpl->set_block( "'\\[category-icon\\](.*?)\\[/category-icon\\]'si", "" );
 	
 	}
+	dle_set_category_additional_icon_tags($tpl, $row['category']);
 	
 	if ( $config['rating_type'] == "1" ) {
 			$tpl->set( '[rating-type-2]', "" );

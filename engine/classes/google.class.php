@@ -151,7 +151,7 @@ class googlemap {
 		foreach ($this->languages as $language) {
 			$this->generate_static($language);
 			$this->generate_categories($language);
-			if ($this->allow_tags ) $this->generate_tags($language);
+			// Tags pages are excluded from sitemap by project requirement.
 			$this->generate_news($language);
 		}
 
@@ -174,49 +174,8 @@ class googlemap {
 		}
 
 		$this->sitemap->save();
-		$this->collapse_to_single_sitemap();
+		// Keep split sitemap files and sitemap index instead of collapsing into one huge urlset file.
 		
-	}
-
-	private function collapse_to_single_sitemap() {
-		$index_file = ROOT_DIR . '/uploads/sitemap.xml';
-
-		if (!file_exists($index_file)) return;
-
-		$index_doc = new DOMDocument();
-		if (!@$index_doc->load($index_file)) return;
-
-		if ($index_doc->documentElement->localName !== 'sitemapindex') return;
-
-		$single_doc = new DOMDocument('1.0', 'UTF-8');
-		$single_doc->formatOutput = false;
-		$urlset = $single_doc->createElementNS('http://www.sitemaps.org/schemas/sitemap/0.9', 'urlset');
-		$urlset->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:image', 'http://www.google.com/schemas/sitemap-image/1.1');
-		$urlset->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:video', 'http://www.google.com/schemas/sitemap-video/1.1');
-		$urlset->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xhtml', 'http://www.w3.org/1999/xhtml');
-		$single_doc->appendChild($urlset);
-
-		$xpath = new DOMXPath($index_doc);
-		foreach ($xpath->query("//*[local-name()='sitemap']/*[local-name()='loc']") as $loc_node) {
-			$loc = trim($loc_node->nodeValue);
-			if (!$loc) continue;
-
-			$path = parse_url($loc, PHP_URL_PATH);
-			if (!$path) continue;
-
-			$source_file = ROOT_DIR . '/uploads/' . basename($path);
-			if (!file_exists($source_file)) continue;
-
-			$source_doc = new DOMDocument();
-			if (!@$source_doc->load($source_file)) continue;
-
-			$source_xpath = new DOMXPath($source_doc);
-			foreach ($source_xpath->query("//*[local-name()='url']") as $url_node) {
-				$urlset->appendChild($single_doc->importNode($url_node, true));
-			}
-		}
-
-		$single_doc->save($index_file);
 	}
 	
 	function generate_news($language = array()) {

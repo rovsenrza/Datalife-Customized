@@ -403,7 +403,7 @@ switch ($xfieldsaction) {
 			} else $editedxfield[16] = 0;
 		  } else $editedxfield[16] = '';
 
-		  if($editedxfield[3] == "image" OR $editedxfield[3] == "imagegalery" OR $editedxfield[3] == "video" OR $editedxfield[3] == "audio" OR $editedxfield[3] == "file" ) {
+		  if($editedxfield[3] == "image" OR $editedxfield[3] == "imagegalery" OR $editedxfield[3] == "video" OR $editedxfield[3] == "audio" OR $editedxfield[3] == "file" OR $editedxfield[3] == "multifile" ) {
 
 			$editedxfield[33] = intval($editedxfield[33]);
 
@@ -421,7 +421,7 @@ switch ($xfieldsaction) {
 
 		  } else { $editedxfield[31] = ''; $editedxfield[32] = ''; }
 
-          if ($editedxfield[3] == "file" ) {
+          if ($editedxfield[3] == "file" OR $editedxfield[3] == "multifile" ) {
 			
 			if ($editedxfield[14]) {
 				
@@ -442,6 +442,14 @@ switch ($xfieldsaction) {
 			$editedxfield[27] = ($editedxfield[27] == "on" ? 1 : 0);
 			
 		  } else { $editedxfield[14] = ''; $editedxfield[15] = ''; $editedxfield[27] = '';}
+
+		  if($editedxfield[3] == "multifile") {
+			if( intval($editedxfield[31]) > 0 ) {
+				$editedxfield[31] = intval($editedxfield[31]);
+			} else $editedxfield[31] = 0;
+		  } elseif($editedxfield[3] != "video" AND $editedxfield[3] != "audio") {
+			$editedxfield[31] = '';
+		  }
 		  
 		  if($editedxfield[3] == "yesorno") {
 			if( intval($editedxfield[17]) > 0 ) {
@@ -547,14 +555,14 @@ switch ($xfieldsaction) {
         ShowOrHideEx("optional",  value != "yesorno");
         ShowOrHideEx("default_image", value == "image" || value == "imagegalery");
 		ShowOrHideEx("default_playlist", value == "video" || value == "audio");
-		ShowOrHideEx("default_storage", value == "video" || value == "audio" || value == "image" || value == "imagegalery" || value == "file");
+		ShowOrHideEx("default_storage", value == "video" || value == "audio" || value == "image" || value == "imagegalery" || value == "file" || value == "multifile");
 		ShowOrHideEx("default_min_max", value == "textarea" || value == "text");	
 		
 		ShowOrHideEx("optional5", value == "imagegalery");
 		ShowOrHideEx("optional6", value == "yesorno");
 		ShowOrHideEx("optional8", value == "datetime");
 		ShowOrHideEx("optional9", value == "datetime");
-		ShowOrHideEx("default_file", value == "file");
+		ShowOrHideEx("default_file", value == "file" || value == "multifile");
 		ShowOrHideEx("default_htmljs", value == "htmljs");
 		ShowOrHideEx("default_select", value == "select");
 		ShowOrHideEx("optional10", value == "textarea" || value == "image" || value == "imagegalery");
@@ -662,6 +670,7 @@ HTML;
 		  <option value="video"<?php echo ($editedxfield[3] == "video") ? " selected" : "";?>><?php echo $lang['xfield_xvideo']; ?></option>
 		  <option value="audio"<?php echo ($editedxfield[3] == "audio") ? " selected" : "";?>><?php echo $lang['xfield_xaudio']; ?></option>
           <option value="file"<?php echo ($editedxfield[3] == "file") ? " selected" : "";?>><?php echo $lang['xfield_xfile']; ?></option>
+          <option value="multifile"<?php echo ($editedxfield[3] == "multifile") ? " selected" : "";?>><?php echo $lang['xfield_xmultifile']; ?></option>
           <option value="yesorno"<?php echo ($editedxfield[3] == "yesorno") ? " selected" : "";?>><?php echo $lang['xfield_xyesorno']; ?></option>
 		  <option value="datetime"<?php echo ($editedxfield[3] == "datetime") ? " selected" : "";?>><?php echo $lang['xfield_xdatetime']; ?></option>
         </select>
@@ -825,6 +834,12 @@ HTML;
 				<input class="form-control text-center" style="width:100%;max-width: 6.25rem;" type="text" dir="auto" name="editedxfield[15]" value="<?php echo htmlspecialchars($editedxfield[15], ENT_QUOTES, 'UTF-8'); ?>"><i class="help-button visible-lg-inline-block text-primary-600 fa fa-question-circle position-right position-left" data-rel="popover" data-trigger="hover" data-placement="auto right" data-content="<?php echo $lang['opt_sys_maxfiled']; ?>" ></i>
 			  </div>
 			</div>
+			<div class="form-group">
+			  <label class="control-label col-sm-3"><?php echo $lang['xfield_xi9']; ?></label>
+			  <div class="col-sm-9">
+				<input class="form-control text-center" style="width:100%;max-width: 6.25rem;" type="text" dir="auto" name="editedxfield[31]" value="<?php echo htmlspecialchars($editedxfield[31], ENT_QUOTES, 'UTF-8'); ?>"><i class="help-button visible-lg-inline-block text-primary-600 fa fa-question-circle position-right position-left" data-rel="popover" data-trigger="hover" data-placement="auto right" data-content="<?php echo $lang['xfield_xi10']; ?>" ></i>
+			  </div>
+			</div>
 			
 			<div class="form-group">
 			  <label class="control-label col-sm-3"></label>
@@ -975,6 +990,7 @@ $(function(){
 				elseif($value[3] == "image") $type=$lang['xfield_ximage'];
 				elseif($value[3] == "imagegalery") $type=$lang['xfield_ximagegalery'];
 				elseif($value[3] == "file") $type=$lang['xfield_xfile'];
+				elseif($value[3] == "multifile") $type=$lang['xfield_xmultifile'];
 				elseif($value[3] == "yesorno") $type=$lang['xfield_xyesorno'];
 				elseif($value[3] == "htmljs") $type=$lang['xfield_xhtmljs'];
 				elseif($value[3] == "datetime") $type=$lang['xfield_xdatetime'];
@@ -1098,7 +1114,7 @@ case "list":
 		$fieldvalue = str_ireplace( "&#123;short-story", "{short-story", $fieldvalue );
 		$fieldvalue = str_ireplace( "&#123;full-story", "{full-story", $fieldvalue );
 		
-		if ($value[8] OR $value[6] OR $value[3] == "image" OR $value[3] == "imagegalery" OR $value[3] == "video" OR $value[3] == "audio" OR $value[3] == "file" OR $value[3] == "select") {
+		if ($value[8] OR $value[6] OR $value[3] == "image" OR $value[3] == "imagegalery" OR $value[3] == "video" OR $value[3] == "audio" OR $value[3] == "file" OR $value[3] == "multifile" OR $value[3] == "select") {
 			
 			$fieldvalue = str_replace( "&#44;", "&amp;#44;", $fieldvalue );
 			$fieldvalue = str_replace( "&#124;", "&amp;#124;", $fieldvalue );
@@ -1132,7 +1148,7 @@ case "list":
 
 		}
 
-      } elseif ($value[3] != "select" AND $value[3] != "image" AND $value[3] != "imagegalery" AND $value[3] != "video" AND $value[3] != "audio" AND $value[3] != "file" AND $value[3] != "yesorno" ) {
+      } elseif ($value[3] != "select" AND $value[3] != "image" AND $value[3] != "imagegalery" AND $value[3] != "video" AND $value[3] != "audio" AND $value[3] != "file" AND $value[3] != "multifile" AND $value[3] != "yesorno" ) {
 			
         $fieldvalue = htmlspecialchars($value[4], ENT_QUOTES, 'UTF-8' );
 		
@@ -2125,9 +2141,13 @@ HTML;
 
 		}
 
-      } elseif( $value[3] == "video" OR $value[3] == "audio") {
+      } elseif( $value[3] == "video" OR $value[3] == "audio" OR $value[3] == "multifile") {
 
-	    $max_file_size = (int)$value[32] * 1024;
+	    if( $value[3] == "multifile" ) {
+			$max_file_size = (int)$value[15] * 1024;
+		} else {
+			$max_file_size = (int)$value[32] * 1024;
+		}
 
 		if( $fieldvalue ) {
 
@@ -2180,7 +2200,8 @@ HTML;
 		
 				$xf_id = md5($temp_value);
 
-				$up_files[] = "<div class=\"file-preview-card uploadedfile\" id=\"xf_{$xf_id}\" data-id=\"{$temp_value}\" data-alt=\"{$temp_alt}\"><div class=\"active-ribbon\"><span><i class=\"mediaupload-icon mediaupload-icon-ok\"></i></span></div><div class=\"file-content select-disable\" style=\"background-color: {$b_color};\"><div class=\"file-ext\">{$file_type}</div>{$file_icon}</div><div class=\"file-footer\"><div class=\"file-footer-caption\"><div class=\"file-caption-info\" rel=\"tooltip\" title=\"{$filename}\">{$base_name}</div><div class=\"file-size-info\">({$temp_size})</div></div><div class=\"file-footer-bottom\"><div class=\"file-preview\"><a onclick=\"xfaddalt(\\'".$xf_id."\\', \\'".$fieldname."\\');return false;\" href=\"#\" rel=\"tooltip\" title=\"{$lang['xf_img_descr']}\"><i class=\"mediaupload-icon mediaupload-icon-edit\"></i></a></div><div class=\"file-delete\"><a onclick=\"xfplaylistdelete_{$fieldcount}(\\'".$fieldname."\\',\\'".$temp_id."\\', \\'".$xf_id."\\');return false;\" href=\"#\"><i class=\"mediaupload-icon mediaupload-icon-trash\"></i></a></div></div></div></div>";
+				$delete_function_name = ($value[3] == "multifile") ? "xfmultifiledelete_{$fieldcount}" : "xfplaylistdelete_{$fieldcount}";
+				$up_files[] = "<div class=\"file-preview-card uploadedfile\" id=\"xf_{$xf_id}\" data-id=\"{$temp_value}\" data-alt=\"{$temp_alt}\"><div class=\"active-ribbon\"><span><i class=\"mediaupload-icon mediaupload-icon-ok\"></i></span></div><div class=\"file-content select-disable\" style=\"background-color: {$b_color};\"><div class=\"file-ext\">{$file_type}</div>{$file_icon}</div><div class=\"file-footer\"><div class=\"file-footer-caption\"><div class=\"file-caption-info\" rel=\"tooltip\" title=\"{$filename}\">{$base_name}</div><div class=\"file-size-info\">({$temp_size})</div></div><div class=\"file-footer-bottom\"><div class=\"file-preview\"><a onclick=\"xfaddalt(\\'".$xf_id."\\', \\'".$fieldname."\\');return false;\" href=\"#\" rel=\"tooltip\" title=\"{$lang['xf_img_descr']}\"><i class=\"mediaupload-icon mediaupload-icon-edit\"></i></a></div><div class=\"file-delete\"><a onclick=\"{$delete_function_name}(\\'".$fieldname."\\',\\'".$temp_id."\\', \\'".$xf_id."\\');return false;\" href=\"#\"><i class=\"mediaupload-icon mediaupload-icon-trash\"></i></a></div></div></div></div>";
 
 			}
 			
@@ -2201,12 +2222,13 @@ HTML;
 
 		}
 
+$delete_function_name = ($value[3] == "multifile") ? "xfmultifiledelete_{$fieldcount}" : "xfplaylistdelete_{$fieldcount}";
 $del_function = <<<HTML
 	var maxallowfiles_{$fieldcount} = {$value[31]};
 	var totaluploaded_{$fieldcount} = {$totaluploadedfiles};
 	var totalqueue_{$fieldcount} = 0;
 	
-	function xfplaylistdelete_{$fieldcount} ( xfname, xfvalue, id )
+	function {$delete_function_name} ( xfname, xfvalue, id )
 	{
 		DLEconfirmDelete( '{$lang['file_delete']}', '{$lang['p_info']}', function () {
 
@@ -2244,6 +2266,11 @@ HTML;
 
 		$allowed_files = "mp3,flac,aac,ogg";
 		$button_text = $lang['xfield_xfaudio'];
+
+	} elseif ( $value[3] == "multifile" ) {
+
+		$button_text = $lang['xfield_xfif'];
+		$allowed_files = strtolower( $value[14] );
 
 	} else {
 
@@ -2893,7 +2920,7 @@ HTML;
 				
 				$newpostedxfields[$value[0]] = $postedxfields[$value[0]];
 				
-			} elseif (($value[8] == 1 OR $value[6] == 1 OR $value[3] == "select" OR $value[3] == "image" OR $value[3] == "imagegalery" OR $value[3] == "video" OR $value[3] == "audio" OR $value[3] == "file") AND $postedxfields[$value[0]] != "" ) {
+			} elseif (($value[8] == 1 OR $value[6] == 1 OR $value[3] == "select" OR $value[3] == "image" OR $value[3] == "imagegalery" OR $value[3] == "video" OR $value[3] == "audio" OR $value[3] == "file" OR $value[3] == "multifile") AND $postedxfields[$value[0]] != "" ) {
 				
 				$newpostedxfields[$value[0]] = str_replace( "&#44;", "&amp;#44;", $postedxfields[$value[0]] );
 				$newpostedxfields[$value[0]] = str_replace( "&#124;", "&amp;#124;", $newpostedxfields[$value[0]] );
@@ -2930,11 +2957,11 @@ HTML;
 				$newpostedxfields[$value[0]] = str_replace( array("{", "["), array("&#123;", "&#91;"), $newpostedxfields[$value[0]] );
 				$newpostedxfields[$value[0]] = preg_replace(array('/data:/i', '/about:/i', '/vbscript:/i', '/javascript:/i'), array("d&#1072;ta&#58;", "&#1072;bout&#58;", "vbscript&#58;", "j&#1072;vascript&#58;"), $newpostedxfields[$value[0]]);
 
-				if($value[3] == "file") {
+				if($value[3] == "file" OR $value[3] == "multifile") {
 					
 					$newpostedxfields[$value[0]] = str_replace( array("&#91;"), array("["), $newpostedxfields[$value[0]] );
 					
-					if( !$value[27] ) {
+					if( !$value[27] AND $value[3] == "file" ) {
 						if (strpos ( $newpostedxfields[$value[0]], "[attachment=" ) === false) $newpostedxfields[$value[0]] = "";
 					}
 					
@@ -3059,7 +3086,7 @@ HTML;
 			
 			$xfield[$value[0]] = $lang['xfield_xhtmljs_2'];
 			
-		} elseif (($value[8] == 1 OR $value[3] == "select" OR $value[3] == "image" OR $value[3] == "imagegalery" OR $value[3] == "video" OR $value[3] == "audio" OR $value[3] == "file" ) AND $xfield[$value[0]] != "" ) {
+		} elseif (($value[8] == 1 OR $value[3] == "select" OR $value[3] == "image" OR $value[3] == "imagegalery" OR $value[3] == "video" OR $value[3] == "audio" OR $value[3] == "file" OR $value[3] == "multifile" ) AND $xfield[$value[0]] != "" ) {
 
 			$xfield[$value[0]] = str_replace( "&#44;", "&amp;#44;", $xfield[$value[0]] );
 			$xfield[$value[0]] = str_replace( "&#124;", "&amp;#124;", $xfield[$value[0]] );
@@ -3187,6 +3214,46 @@ HTML;
 			}
 
 			$xfield[$value[0]] = "<div class=\"dleplyrplayer\" {$playlist_width} theme=\"{$video_config['theme']}\">" . implode($playlist) . "</div>";
+		}
+
+		if ($value[3] == "multifile" AND $xfield[$value[0]]) {
+
+			$fieldvalue_arr = explode(',', $xfield[$value[0]]);
+			$files = array();
+
+			foreach ($fieldvalue_arr as $temp_value) {
+
+				$temp_value = trim($temp_value);
+				if (!$temp_value) continue;
+
+				$temp_array = explode('|', $temp_value);
+
+				if (count($temp_array) < 3) {
+					continue;
+				}
+
+				if (count($temp_array) > 3) {
+					$temp_alt = $temp_array[0];
+					unset($temp_array[0]);
+					$temp_array = array_values($temp_array);
+				} else {
+					$temp_alt = '';
+				}
+
+				$temp_url = $temp_array[0];
+				$filename = pathinfo($temp_url, PATHINFO_BASENAME);
+				$filename = explode("_", $filename);
+				if (count($filename) > 1 and intval($filename[0])) unset($filename[0]);
+				$filename = implode("_", $filename);
+				$filename = preg_replace("/\\?.*$/", "", $filename);
+
+				if (!$temp_alt) $temp_alt = pathinfo($filename, PATHINFO_FILENAME);
+				if (!$temp_alt) $temp_alt = $filename;
+
+				$files[] = "<li><a href=\"{$temp_url}\" target=\"_blank\">{$temp_alt}</a></li>";
+			}
+
+			$xfield[$value[0]] = count($files) ? "<ul class=\"xfieldfiles {$value[0]}\">".implode($files)."</ul>" : "";
 		}
 
 		if($value[3] == "imagegalery" AND $xfield[$value[0]] ) {

@@ -5,7 +5,7 @@
 		</a>
 		<div class="p-4 stitch-line">
 			<div class="flex items-center justify-between gap-3 mb-2">
-				<p class="font-label text-[11px] uppercase tracking-[0.14em] text-atelier_secondary">[xfgiven_price]{xfvalue_price}[/xfgiven_price][not-xfgiven_price]{date=d.m.Y}[/not-xfgiven_price]</p>
+				<p class="font-label text-[11px] uppercase tracking-[0.14em] text-atelier_secondary">[xfgiven_price][xfvalue_price][/xfgiven_price][xfnotgiven_price]{date=d.m.Y}[/xfnotgiven_price]</p>
 			</div>
 			<h3 class="font-headline text-2xl leading-tight mb-2"><a class="hover:text-atelier_primary transition-colors" href="{full-link}">{title}</a></h3>
 			<p class="text-sm text-atelier_secondary leading-relaxed mb-4">{short-story limit="120"}</p>

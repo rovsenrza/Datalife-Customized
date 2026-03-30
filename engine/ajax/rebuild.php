@@ -213,7 +213,7 @@ if ($_POST['area'] == "static" ) {
 						
 					}
 
-					if ($value[3] != "select" AND $value[3] != "image" AND $value[3] != "imagegalery" AND $value[3] != "video" AND $value[3] != "audio" AND $value[3] != "file" AND $value[3] != "htmljs" AND $value[3] != "datetime" AND $value[8] == 0 AND $value[6] == 0 AND $postedxfields[$value[0]] ) {
+					if ($value[3] != "select" AND $value[3] != "image" AND $value[3] != "imagegalery" AND $value[3] != "video" AND $value[3] != "audio" AND $value[3] != "file" AND $value[3] != "multifile" AND $value[3] != "htmljs" AND $value[3] != "datetime" AND $value[8] == 0 AND $value[6] == 0 AND $postedxfields[$value[0]] ) {
 
 						$postedxfields[$value[0]] = $parsexf->decodeBBCodes($postedxfields[$value[0]], true, true);					
 						$newpostedxfields[$value[0]] = $parsexf->BB_Parse($parsexf->process($postedxfields[$value[0]]));
@@ -256,7 +256,7 @@ if ($_POST['area'] == "static" ) {
 							$newpostedxfields[$value[0]] = str_replace(array("{", "["), array("&#123;", "&#91;"), $newpostedxfields[$value[0]]);
 							$newpostedxfields[$value[0]] = preg_replace(array('/data:/i', '/about:/i', '/vbscript:/i', '/javascript:/i'), array("d&#1072;ta&#58;", "&#1072;bout&#58;", "vbscript&#58;", "j&#1072;vascript&#58;"), $newpostedxfields[$value[0]]);
 
-							if($value[3] == "file") {
+							if($value[3] == "file" OR $value[3] == "multifile") {
 								
 								$newpostedxfields[$value[0]] = str_replace( array("&#91;"), array("["), $newpostedxfields[$value[0]] );
 								

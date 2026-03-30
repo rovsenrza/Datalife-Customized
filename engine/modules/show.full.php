@@ -1013,6 +1013,7 @@ HTML;
 			$tpl->set_block( "'\\[category-icon\\](.*?)\\[/category-icon\\]'si", "" );
 			
 		}
+		dle_set_category_additional_icon_tags($tpl, $category_id);
 		
 		if ( $row['category'] ) {
 			

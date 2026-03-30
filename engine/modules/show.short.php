@@ -307,6 +307,7 @@ if( $allow_active_news ) {
 			$tpl->set( '[/not-category-icon]', "" );
 			$tpl->set_block( "'\\[category-icon\\](.*?)\\[/category-icon\\]'si", "" );
 		}
+		dle_set_category_additional_icon_tags($tpl, $row['category']);
 
 		$compare_date = compare_days_date($row['date'],  $short_news_cache);
 

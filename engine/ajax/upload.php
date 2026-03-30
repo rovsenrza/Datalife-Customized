@@ -204,7 +204,7 @@ if( $_REQUEST['subaction'] == "upload" ) {
 	
 	}
 
-	if ($area == "xfieldsimage" OR $area == "xfieldsimagegalery" OR $area == "xfieldsvideo" OR $area == "xfieldsaudio" OR $area == "xfieldsfile" ) {
+	if ($area == "xfieldsimage" OR $area == "xfieldsimagegalery" OR $area == "xfieldsvideo" OR $area == "xfieldsaudio" OR $area == "xfieldsfile" OR $area == "xfieldsmultifile" ) {
 
 		$xfparam = xfparamload($_REQUEST['xfname']);
 
@@ -243,7 +243,7 @@ if( $_REQUEST['subaction'] == "upload" ) {
 		
 	}
 	
-	if( $area == "xfieldsfile" ) {
+	if( $area == "xfieldsfile" OR $area == "xfieldsmultifile" ) {
 		$xfparam = xfparamload( $_REQUEST['xfname'] );
 		
 		if( !is_array( $xfparam ) ) die ( "{\"error\":\"xfieldname not found\"}" );
